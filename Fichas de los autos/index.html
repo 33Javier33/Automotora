@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AutoGestión Pro | Flexible</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --border: #e2e8f0;
+            --secondary: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--light);
+            margin: 0;
+            padding-bottom: 90px;
+            color: var(--dark);
+        }
+
+        nav {
+            background: white;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+
+        .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
+
+        /* Buscador */
+        .search-container {
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 10px;
+        }
+        #searchInput {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            font-size: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* Botón Flotante / PC */
+        .btn-add-mobile {
+            position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
+            border-radius: 50%; background: var(--primary); color: white; border: none;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); font-size: 24px;
+            display: flex; align-items: center; justify-content: center; z-index: 99; cursor: pointer;
+        }
+
+        @media (min-width: 768px) {
+            .btn-add-mobile { position: static; width: auto; height: auto; border-radius: 8px; padding: 0.6rem 1.2rem; font-size: 0.95rem; }
+            .btn-text { display: inline; } .btn-plus { display: none; }
+            body { padding-bottom: 0; }
+        }
+        .btn-text { display: none; }
+
+        /* Tabla y Tarjetas */
+        @media (max-width: 767px) {
+            table, thead, tbody, th, td, tr { display: block; }
+            thead tr { position: absolute; top: -9999px; left: -9999px; }
+            tr { background: white; margin-bottom: 1rem; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+            td { border: none; position: relative; padding: 5px 0 5px 45%; font-size: 0.9rem; }
+            td::before { position: absolute; left: 0; width: 40%; font-weight: bold; color: var(--secondary); font-size: 0.7rem; text-transform: uppercase; }
+            td:nth-of-type(1)::before { content: "Vehículo:"; }
+            td:nth-of-type(2)::before { content: "Año/Color:"; }
+            td:nth-of-type(3)::before { content: "Motor:"; }
+            td:nth-of-type(4)::before { content: "Dueño:"; }
+            td:nth-of-type(5)::before { content: "KM:"; }
+            td:nth-of-type(6)::before { content: "Precios:"; }
+            td:nth-of-type(7) { padding-left: 0; margin-top: 10px; border-top: 1px solid #eee; padding-top: 10px; display: flex; gap: 8px; }
+        }
+
+        @media (min-width: 768px) {
+            .table-card { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+            table { width: 100%; border-collapse: collapse; }
+            th { background: #f1f5f9; padding: 1rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: var(--secondary); }
+            td { padding: 1rem; border-top: 1px solid var(--border); }
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
+            display: none; justify-content: center; align-items: flex-end; z-index: 1000;
+        }
+        .modal-content {
+            background: white; width: 100%; max-height: 95vh; overflow-y: auto;
+            padding: 1.5rem; border-radius: 20px 20px 0 0; animation: slideUp 0.3s ease-out;
+        }
+        @media (min-width: 768px) { .modal-overlay { align-items: center; } .modal-content { width: 95%; max-width: 700px; border-radius: 16px; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 0.8rem; margin-top: 1rem; }
+        @media (min-width: 600px) { .form-grid { grid-template-columns: 1fr 1fr 1fr; } .full-row { grid-column: span 3; } .half-row { grid-column: span 2; } }
+
+        input, textarea, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
+        label { font-size: 0.7rem; font-weight: 700; color: var(--secondary); margin-bottom: 4px; display: block; text-transform: uppercase; }
+
+        .badge-patente { background: #1e293b; color: white; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; }
+        .badge-incomplete { background: #fff7ed; color: #c2410c; font-size: 0.65rem; padding: 2px 4px; border-radius: 4px; border: 1px solid #fdba74; }
+
+        .btn-action { padding: 10px 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; flex: 1; text-align: center; font-size: 0.8rem; }
+        .btn-edit { background: #e0e7ff; color: var(--primary); }
+        .btn-delete { background: #fee2e2; color: var(--danger); }
+        
+        .empty-field { color: #cbd5e1; font-style: italic; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+
+<nav>
+    <div class="logo">🚗 AutoGestión<span style="color:var(--dark)">Pro</span></div>
+    <button class="btn-add-mobile" onclick="openModal()">
+        <span class="btn-plus">+</span>
+        <span class="btn-text">Registrar Auto</span>
+    </button>
+</nav>
+
+<div class="main-content">
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar por patente, marca o dueño..." onkeyup="loadInventory()">
+    </div>
+
+    <div class="table-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Vehículo</th>
+                    <th>Año/Color</th>
+                    <th>Motor</th>
+                    <th>Dueño</th>
+                    <th>KM</th>
+                    <th>Precios</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h2 id="modalTitle" style="margin:0; font-size: 1.2rem;">Nuevo Ingreso</h2>
+            <button onclick="closeModal()" style="background:#f1f5f9; border:none; width:35px; height:35px; border-radius:50%; font-size:1.2rem; cursor:pointer;">&times;</button>
+        </div>
+        
+        <form id="carForm">
+            <input type="hidden" id="editId">
+            <div class="form-grid">
+                <div>
+                    <label>Patente (Opcional)</label>
+                    <input type="text" id="patente" placeholder="ABCD-12">
+                </div>
+                <div>
+                    <label>Marca</label>
+                    <input type="text" id="marca" placeholder="Ej: Kia">
+                </div>
+                <div>
+                    <label>Modelo</label>
+                    <input type="text" id="modelo" placeholder="Ej: Sportage">
+                </div>
+                <div>
+                    <label>Año</label>
+                    <input type="number" id="anio" placeholder="2024">
+                </div>
+                <div>
+                    <label>Color</label>
+                    <input type="text" id="color" placeholder="Blanco">
+                </div>
+                <div>
+                    <label>Combustible</label>
+                    <select id="combustible">
+                        <option value="">- Seleccionar -</option>
+                        <option value="Bencina">Bencina</option>
+                        <option value="Diesel">Diesel</option>
+                        <option value="Híbrido">Híbrido</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Kilometraje</label>
+                    <input type="number" id="km">
+                </div>
+                <div>
+                    <label>Nombre Dueño</label>
+                    <input type="text" id="dueno">
+                </div>
+                <div>
+                    <label>Teléfono</label>
+                    <input type="tel" id="fono" placeholder="+569...">
+                </div>
+                <div>
+                    <label>Costo Dueño ($)</label>
+                    <input type="number" id="pDueno">
+                </div>
+                <div class="half-row">
+                    <label>Precio Venta ($)</label>
+                    <input type="number" id="pVenta">
+                </div>
+                <div class="full-row">
+                    <label>Observaciones</label>
+                    <textarea id="obs" rows="2"></textarea>
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 10px;">
+                <button type="submit" id="btnSubmit" style="background:var(--primary); color:white; padding:15px; border-radius:10px; border:none; font-weight:bold; font-size:1rem; cursor:pointer;">Guardar Registro</button>
+                <button type="button" onclick="closeModal()" style="background:transparent; color:var(--secondary); padding:5px; border:none; cursor:pointer;">Cerrar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const modal = document.getElementById('modalOverlay');
+    const carForm = document.getElementById('carForm');
+    const inventoryBody = document.getElementById('inventoryBody');
+
+    function openModal(editData = null) {
+        modal.style.display = 'flex';
+        if (editData) {
+            document.getElementById('modalTitle').innerText = "Editar Ficha";
+            document.getElementById('btnSubmit').innerText = "Actualizar Datos";
+            document.getElementById('editId').value = editData.id;
+            document.getElementById('patente').value = editData.patente || '';
+            document.getElementById('marca').value = editData.marca || '';
+            document.getElementById('modelo').value = editData.modelo || '';
+            document.getElementById('anio').value = editData.anio || '';
+            document.getElementById('color').value = editData.color || '';
+            document.getElementById('combustible').value = editData.combustible || '';
+            document.getElementById('km').value = editData.km || '';
+            document.getElementById('dueno').value = editData.dueno || '';
+            document.getElementById('fono').value = editData.fono || '';
+            document.getElementById('pDueno').value = editData.pDueno || '';
+            document.getElementById('pVenta').value = editData.pVenta || '';
+            document.getElementById('obs').value = editData.obs || '';
+        } else {
+            document.getElementById('modalTitle').innerText = "Nuevo Ingreso";
+            document.getElementById('btnSubmit').innerText = "Guardar Registro";
+            document.getElementById('editId').value = "";
+            carForm.reset();
+        }
+    }
+
+    function closeModal() { modal.style.display = 'none'; carForm.reset(); }
+
+    carForm.onsubmit = (e) => {
+        e.preventDefault();
+        const editId = document.getElementById('editId').value;
+        const car = {
+            id: editId ? Number(editId) : Date.now(),
+            patente: document.getElementById('patente').value.toUpperCase(),
+            marca: document.getElementById('marca').value,
+            modelo: document.getElementById('modelo').value,
+            anio: document.getElementById('anio').value,
+            color: document.getElementById('color').value,
+            combustible: document.getElementById('combustible').value,
+            km: document.getElementById('km').value,
+            dueno: document.getElementById('dueno').value,
+            fono: document.getElementById('fono').value,
+            pDueno: document.getElementById('pDueno').value,
+            pVenta: document.getElementById('pVenta').value,
+            obs: document.getElementById('obs').value
+        };
+
+        let db = JSON.parse(localStorage.getItem('autosDB_vFinal')) || [];
+        if (editId) {
+            db = db.map(item => item.id === car.id ? car : item);
+        } else {
+            db.push(car);
+        }
+
+        localStorage.setItem('autosDB_vFinal', JSON.stringify(db));
+        closeModal();
+        loadInventory();
+    };
+
+    function formatPrice(val) {
+        return val ? '$' + Number(val).toLocaleString() : '<span class="empty-field">Pendiente</span>';
+    }
+
+    function loadInventory() {
+        const db = JSON.parse(localStorage.getItem('autosDB_vFinal')) || [];
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
+        inventoryBody.innerHTML = '';
+
+        const filtered = db.filter(car => 
+            car.patente.toLowerCase().includes(searchTerm) || 
+            car.marca.toLowerCase().includes(searchTerm) || 
+            car.modelo.toLowerCase().includes(searchTerm) ||
+            car.dueno.toLowerCase().includes(searchTerm)
+        );
+
+        if (filtered.length === 0) {
+            inventoryBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:3rem; color:#94a3b8">No se encontraron resultados.</td></tr>';
+            return;
+        }
+
+        filtered.sort((a, b) => b.id - a.id).forEach(car => {
+            const isIncomplete = !car.patente || !car.pVenta || !car.km;
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    ${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/ PATENTE</span>'}<br>
+                    <strong>${car.marca || ''} ${car.modelo || ''}</strong>
+                </td>
+                <td>${car.anio || '-'} / <small>${car.color || '-'}</small></td>
+                <td><small>${car.combustible || '-'}</small></td>
+                <td>
+                    <small>${car.dueno || '<span class="empty-field">S/ Nombre</span>'}</small><br>
+                    ${car.fono ? `<a href="tel:${car.fono}" style="text-decoration:none; color:var(--primary); font-size:0.8rem">📞 Llamar</a>` : ''}
+                </td>
+                <td>${car.km ? Number(car.km).toLocaleString() : '-'}</td>
+                <td>
+                    <div style="font-size:0.7rem; color:var(--secondary)">C: ${formatPrice(car.pDueno)}</div>
+                    <div style="color:var(--success); font-weight:bold">V: ${formatPrice(car.pVenta)}</div>
+                </td>
+                <td>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-action btn-edit" onclick='editCar(${car.id})'>Editar</button>
+                        <button class="btn-action btn-delete" onclick="deleteCar(${car.id})">Borrar</button>
+                    </div>
+                </td>
+            `;
+            inventoryBody.appendChild(tr);
+        });
+    }
+
+    function editCar(id) {
+        const db = JSON.parse(localStorage.getItem('autosDB_vFinal'));
+        const car = db.find(item => item.id === id);
+        if (car) openModal(car);
+    }
+
+    function deleteCar(id) {
+        if(confirm('¿Seguro que quieres borrar este registro?')) {
+            let db = JSON.parse(localStorage.getItem('autosDB_vFinal'));
+            db = db.filter(item => item.id !== id);
+            localStorage.setItem('autosDB_vFinal', JSON.stringify(db));
+            loadInventory();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadInventory);
+</script>
+
+</body>
+</html>
