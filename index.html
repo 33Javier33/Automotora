@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AutoGestión | Visor Ventas</title>
+    <style>
+        :root { --primary: #4f46e5; --success: #10b981; --dark: #1e293b; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; color: var(--dark); }
+
+        /* NAV */
+        nav { background: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 5px; }
+        .badge-visor { background: #e0e7ff; color: var(--primary); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .btn-refresh { 
+            padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); 
+            background: white; cursor: pointer; font-size: 0.85rem; font-weight: bold;
+            color: var(--dark); display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+        }
+        .btn-refresh:active { transform: scale(0.95); background: #f1f5f9; }
+
+        .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
+        .search-container { margin-bottom: 1rem; display: flex; gap: 10px; }
+        #searchInput { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); outline: none; }
+        #searchInput:focus { border-color: var(--primary); }
+
+        /* TARJETAS (MÓVIL) */
+        .inventory-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+        
+        .card-item { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; transition: transform 0.2s; }
+        .card-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        
+        .card-header { padding: 1rem; border-bottom: 1px solid var(--light); display: flex; justify-content: space-between; align-items: start; background: #fdfdfd; }
+        .card-title { font-weight: 800; font-size: 1.1rem; color: var(--dark); display: block; }
+        .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 2px; display: block; }
+        
+        .card-body { padding: 1rem; font-size: 0.9rem; flex: 1; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; }
+        .info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .info-label { color: var(--secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        .info-val { font-weight: 500; text-align: right; }
+
+        .card-footer { background: #f8fafc; padding: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
+        
+        .price-box { display: flex; flex-direction: column; gap: 2px; }
+        .price-cost { font-size: 0.75rem; color: var(--secondary); }
+        .price-sale { font-size: 1.2rem; font-weight: 800; color: var(--success); }
+
+        /* ELEMENTOS VISUALES */
+        .badge-patente { background: #1e293b; color: white; padding: 3px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; font-size: 0.85rem; }
+        .badge-incomplete { background: #fff7ed; color: #c2410c; padding: 2px 6px; border-radius: 4px; border: 1px solid #fdba74; font-size: 0.7rem; }
+        .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; border: 1px solid #bfdbfe; cursor: pointer; display: inline-block; margin-top: 4px; }
+        .id-badge:active { background: var(--primary); color: white; }
+        .ig-btn { background: #fae8ff; color: #86198f; border: 1px solid #f0abfc; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
+        .obs-box { background: #fffbeb; color: #92400e; padding: 8px; margin-top: 8px; border-radius: 6px; font-size: 0.8rem; border-left: 3px solid #f59e0b; font-style: italic; }
+
+        /* TABLA (Escritorio) */
+        .desktop-table-container { display: none; }
+        @media (min-width: 900px) {
+            .inventory-grid { display: none; }
+            .desktop-table-container { display: block; background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+            table { width: 100%; border-collapse: collapse; }
+            th { background: #f1f5f9; padding: 1rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: var(--secondary); }
+            td { padding: 1rem; border-top: 1px solid var(--border); vertical-align: top; }
+            tr:hover { background-color: #f8fafc; }
+        }
+
+        .loading-bar { height: 4px; background: var(--primary); width: 0%; transition: width 0.3s; position: fixed; top: 0; left: 0; z-index: 200; }
+        .watermark { position: fixed; bottom: 10px; right: 10px; font-size: 0.8rem; color: rgba(0, 0, 0, 0.2); pointer-events: none; z-index: 1000; }
+    </style>
+</head>
+<body>
+
+<div id="loadingBar" class="loading-bar"></div>
+
+<nav>
+    <div class="logo">
+        🚗 AutoGestión <span class="badge-visor">Visor Ventas</span>
+    </div>
+    <button class="btn-refresh" onclick="loadInventory()">
+        🔄 <span style="display:none" class="d-sm-inline">Actualizar</span>
+    </button>
+</nav>
+
+<div class="main-content">
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar por patente, modelo, ID..." onkeyup="filterInventory()">
+    </div>
+
+    <div style="text-align:center; padding: 10px; font-size:0.8rem; color:#64748b" id="statusMsg">Cargando inventario...</div>
+
+    <!-- VISTA TARJETAS (Móvil) -->
+    <div id="inventoryCards" class="inventory-grid"></div>
+
+    <!-- VISTA TABLA (PC) -->
+    <div class="desktop-table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Vehículo / ID</th>
+                    <th>Detalles</th>
+                    <th>Dueño</th>
+                    <th>Precios</th>
+                    <th>Obs / Redes</th>
+                </tr>
+            </thead>
+            <tbody id="inventoryTableBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="watermark">Modo Lectura • AutoGestión Pro</div>
+
+<script>
+    // ==========================================
+    // ¡¡¡ PEGA LA MISMA URL DEL ADMIN AQUÍ !!!
+    // ==========================================
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBurGXfk92kPtrTVFDI7Ukec03FYhVOHcfdl7FN95C5uLT_BnU8ltzh_nPy9gUkDDbZg/exec"; 
+    // ==========================================
+
+    const cardsContainer = document.getElementById('inventoryCards');
+    const tableBody = document.getElementById('inventoryTableBody');
+    const loader = document.getElementById('loadingBar');
+    const statusMsg = document.getElementById('statusMsg');
+    let inventoryData = []; 
+
+    // --- CARGAR DATOS (SOLO LECTURA) ---
+    async function loadInventory() {
+        if(GOOGLE_SCRIPT_URL.includes("AQUI_PEGA")) { alert("⚠️ Falta configurar URL"); return; }
+        
+        loader.style.width = "60%";
+        statusMsg.innerText = "🔄 Sincronizando con la nube...";
+        
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
+            const data = await response.json();
+            inventoryData = data; 
+            renderInventory(data);
+            statusMsg.innerText = `✅ Actualizado: ${data.length} vehículos encontrados.`;
+        } catch (error) {
+            console.error(error);
+            statusMsg.innerText = "❌ Error de conexión. Intenta recargar.";
+        } finally { 
+            loader.style.width = "0%"; 
+        }
+    }
+
+    function formatMoney(num) {
+        if (!num) return '-';
+        return Number(num).toLocaleString('de-DE'); 
+    }
+
+    function renderInventory(data) {
+        cardsContainer.innerHTML = '';
+        tableBody.innerHTML = '';
+
+        if (data.length === 0) {
+            cardsContainer.innerHTML = '<div style="text-align:center; padding:3rem; color:#aaa; grid-column: 1/-1;">No hay vehículos disponibles.</div>';
+            return;
+        }
+
+        // Ordenar: más nuevo primero
+        data.sort((a, b) => b.id - a.id).forEach(car => {
+            // Preparar datos visuales
+            const idHtml = car.idExterno ? `<div class="id-badge" onclick="copyText('${car.idExterno}')">🆔 ${car.idExterno}</div>` : '';
+            const igHtml = car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Ver Instagram</a>` : '';
+            const obsHtml = car.obs ? `<div class="obs-box">📝 ${car.obs}</div>` : '';
+            
+            // Teléfono limpio
+            const fonoRaw = car.fono ? String(car.fono).replace(/\D/g,'') : '';
+            const fonoLink = fonoRaw ? `<a href="tel:+${fonoRaw}" style="color:var(--primary);text-decoration:none">📞 Contactar</a>` : '-';
+
+            // 1. TARJETA (Móvil)
+            const card = document.createElement('div');
+            card.className = 'card-item';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div>
+                        <span class="card-title">${car.marca} ${car.modelo}</span>
+                        <span class="card-subtitle">${car.anio} • ${car.combustible}</span>
+                        ${idHtml}
+                    </div>
+                    <div>${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/P</span>'}</div>
+                </div>
+                <div class="card-body">
+                    <div class="info-row"><span class="info-label">Kilometraje</span> <span class="info-val">${formatMoney(car.km)} km</span></div>
+                    <div class="info-row"><span class="info-label">Color</span> <span class="info-val">${car.color}</span></div>
+                    <div class="info-row"><span class="info-label">Dueño</span> <span class="info-val">${car.dueno}</span></div>
+                    <div class="info-row"><span class="info-label">Contacto</span> <span class="info-val">${fonoLink}</span></div>
+                    ${obsHtml}
+                    <div style="margin-top:8px; text-align:right">${igHtml}</div>
+                </div>
+                <div class="card-footer">
+                    <div class="price-box">
+                        <span class="price-cost">Costo: $${formatMoney(car.pDueno)}</span>
+                        <span class="price-sale">Venta: $${formatMoney(car.pVenta)}</span>
+                    </div>
+                    <!-- Sin botones de acción -->
+                </div>
+            `;
+            cardsContainer.appendChild(card);
+
+            // 2. TABLA (Escritorio)
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    ${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/P</span>'}<br>
+                    <strong>${car.marca} ${car.modelo}</strong><br>
+                    ${idHtml}
+                </td>
+                <td>${car.anio}<br><small>${car.color}</small><br><small>${formatMoney(car.km)} km</small></td>
+                <td>${car.dueno}<br>${fonoLink}</td>
+                <td>
+                    <div style="color:var(--secondary); font-size:0.8rem">C: $${formatMoney(car.pDueno)}</div>
+                    <div style="color:var(--success); font-weight:bold; font-size:1.1rem">$${formatMoney(car.pVenta)}</div>
+                </td>
+                <td style="font-size:0.85rem">
+                    ${igHtml}
+                    ${car.obs ? `<div style="margin-top:5px; font-style:italic; color:#666">${car.obs}</div>` : ''}
+                </td>
+            `;
+            tableBody.appendChild(tr);
+        });
+    }
+
+    function copyText(text) { navigator.clipboard.writeText(text).then(() => alert(`ID Copiado: ${text}`)); }
+    
+    function filterInventory() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = inventoryData.filter(c => 
+            String(c.patente).toLowerCase().includes(term) || 
+            String(c.marca).toLowerCase().includes(term) || 
+            String(c.idExterno).includes(term) || 
+            String(c.modelo).toLowerCase().includes(term)
+        );
+        renderInventory(filtered);
+    }
+
+    // Iniciar carga al abrir
+    document.addEventListener('DOMContentLoaded', loadInventory);
+</script>
+
+</body>
+</html>
