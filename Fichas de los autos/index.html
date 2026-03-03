@@ -38,24 +38,21 @@
 
         .logo { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
 
+        .backup-controls { display: flex; gap: 8px; margin-left: 10px; }
+        .btn-backup { 
+            padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); 
+            background: white; cursor: pointer; font-size: 0.7rem; font-weight: bold;
+            color: var(--secondary); display: flex; align-items: center; gap: 4px;
+        }
+
         .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
 
-        /* Buscador */
-        .search-container {
-            margin-bottom: 1rem;
-            display: flex;
-            gap: 10px;
-        }
+        .search-container { margin-bottom: 1rem; display: flex; gap: 10px; }
         #searchInput {
-            flex: 1;
-            padding: 12px;
-            border-radius: 10px;
-            border: 1px solid var(--border);
-            font-size: 1rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+            font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
 
-        /* Botón Flotante / PC */
         .btn-add-mobile {
             position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px;
             border-radius: 50%; background: var(--primary); color: white; border: none;
@@ -70,7 +67,6 @@
         }
         .btn-text { display: none; }
 
-        /* Tabla y Tarjetas */
         @media (max-width: 767px) {
             table, thead, tbody, th, td, tr { display: block; }
             thead tr { position: absolute; top: -9999px; left: -9999px; }
@@ -93,7 +89,6 @@
             td { padding: 1rem; border-top: 1px solid var(--border); }
         }
 
-        /* Modal */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
@@ -118,14 +113,31 @@
         .btn-action { padding: 10px 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; flex: 1; text-align: center; font-size: 0.8rem; }
         .btn-edit { background: #e0e7ff; color: var(--primary); }
         .btn-delete { background: #fee2e2; color: var(--danger); }
-        
         .empty-field { color: #cbd5e1; font-style: italic; font-size: 0.8rem; }
+
+        /* Estilos para la marca de agua */
+        .watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: rgba(0, 0, 0, 0.2); /* Sutil y tenue */
+            pointer-events: none; /* No interfiere con clics */
+            z-index: 1000; /* Asegura estar sobre otros elementos */
+        }
     </style>
 </head>
 <body>
 
 <nav>
-    <div class="logo">🚗 AutoGestión<span style="color:var(--dark)">Pro</span></div>
+    <div style="display: flex; align-items: center;">
+        <div class="logo">🚗 AutoGestión<span style="color:var(--dark)">Pro</span></div>
+        <div class="backup-controls">
+            <button class="btn-backup" onclick="exportData()">📥 <span class="btn-text">Backup</span></button>
+            <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 <span class="btn-text">Restaurar</span></button>
+            <input type="file" id="importFile" style="display:none" accept=".json" onchange="importData(event)">
+        </div>
+    </div>
     <button class="btn-add-mobile" onclick="openModal()">
         <span class="btn-plus">+</span>
         <span class="btn-text">Registrar Auto</span>
@@ -179,7 +191,7 @@
                 </div>
                 <div>
                     <label>Año</label>
-                    <input type="number" id="anio" placeholder="2024">
+                    <input type="text" id="anio" inputmode="numeric" placeholder="2024">
                 </div>
                 <div>
                     <label>Color</label>
@@ -196,7 +208,7 @@
                 </div>
                 <div>
                     <label>Kilometraje</label>
-                    <input type="number" id="km">
+                    <input type="text" id="km" inputmode="numeric" oninput="formatMiles(this)" placeholder="0">
                 </div>
                 <div>
                     <label>Nombre Dueño</label>
@@ -204,15 +216,15 @@
                 </div>
                 <div>
                     <label>Teléfono</label>
-                    <input type="tel" id="fono" placeholder="+569...">
+                    <input type="tel" id="fono" inputmode="tel" placeholder="9 2007 8076" oninput="formatPhone(this)">
                 </div>
                 <div>
                     <label>Costo Dueño ($)</label>
-                    <input type="number" id="pDueno">
+                    <input type="text" id="pDueno" inputmode="numeric" oninput="formatMiles(this)" placeholder="0">
                 </div>
                 <div class="half-row">
                     <label>Precio Venta ($)</label>
-                    <input type="number" id="pVenta">
+                    <input type="text" id="pVenta" inputmode="numeric" oninput="formatMiles(this)" placeholder="0">
                 </div>
                 <div class="full-row">
                     <label>Observaciones</label>
@@ -228,11 +240,69 @@
     </div>
 </div>
 
+<div class="watermark">CarlosPN Interactive®</div>
+
 <script>
     const modal = document.getElementById('modalOverlay');
     const carForm = document.getElementById('carForm');
     const inventoryBody = document.getElementById('inventoryBody');
 
+    // --- FORMATEADORES ---
+    function formatMiles(input) {
+        let value = input.value.replace(/\D/g, "");
+        if (value === "") { input.value = ""; return; }
+        input.value = Number(value).toLocaleString("de-DE");
+    }
+
+    function formatPhone(input) {
+        let v = input.value.replace(/\D/g, "");
+        if (v.length === 0) { input.value = ""; return; }
+        let formatted = "";
+        if (v.startsWith("56")) {
+            if (v.length > 11) v = v.substring(0, 11);
+            formatted += "+" + v.substring(0, 2); // +56
+            if (v.length > 2) formatted += " " + v.substring(2, 3); // 9
+            if (v.length > 3) formatted += "-" + v.substring(3, 7); // 2007
+            if (v.length > 7) formatted += "-" + v.substring(7, 11); // 8076
+        } else {
+            if (v.length > 9) v = v.substring(0, 9);
+            formatted += v.substring(0, 1); // 9
+            if (v.length > 1) formatted += " " + v.substring(1, 5); // 2007
+            if (v.length > 5) formatted += "-" + v.substring(5, 9); // 8076
+        }
+        input.value = formatted;
+    }
+
+    // --- BACKUP ---
+    function exportData() {
+        const db = localStorage.getItem('autosDB_vFinal');
+        if (!db || db === '[]') return alert('No hay datos.');
+        const blob = new Blob([db], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_autos_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+    }
+
+    function importData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (Array.isArray(data)) {
+                    localStorage.setItem('autosDB_vFinal', JSON.stringify(data));
+                    loadInventory();
+                    alert('Restaurado con éxito.');
+                }
+            } catch (err) { alert('Error al leer el archivo.'); }
+        };
+        reader.readAsText(file);
+    }
+
+    // --- LÓGICA PRINCIPAL ---
     function openModal(editData = null) {
         modal.style.display = 'flex';
         if (editData) {
@@ -245,12 +315,14 @@
             document.getElementById('anio').value = editData.anio || '';
             document.getElementById('color').value = editData.color || '';
             document.getElementById('combustible').value = editData.combustible || '';
-            document.getElementById('km').value = editData.km || '';
+            document.getElementById('km').value = editData.km ? Number(editData.km).toLocaleString("de-DE") : '';
             document.getElementById('dueno').value = editData.dueno || '';
-            document.getElementById('fono').value = editData.fono || '';
-            document.getElementById('pDueno').value = editData.pDueno || '';
-            document.getElementById('pVenta').value = editData.pVenta || '';
+            document.getElementById('pDueno').value = editData.pDueno ? Number(editData.pDueno).toLocaleString("de-DE") : '';
+            document.getElementById('pVenta').value = editData.pVenta ? Number(editData.pVenta).toLocaleString("de-DE") : '';
             document.getElementById('obs').value = editData.obs || '';
+            const fonoInput = document.getElementById('fono');
+            fonoInput.value = editData.fono || '';
+            formatPhone(fonoInput);
         } else {
             document.getElementById('modalTitle').innerText = "Nuevo Ingreso";
             document.getElementById('btnSubmit').innerText = "Guardar Registro";
@@ -264,6 +336,7 @@
     carForm.onsubmit = (e) => {
         e.preventDefault();
         const editId = document.getElementById('editId').value;
+        const cleanN = (id) => document.getElementById(id).value.replace(/\D/g, "");
         const car = {
             id: editId ? Number(editId) : Date.now(),
             patente: document.getElementById('patente').value.toUpperCase(),
@@ -272,51 +345,51 @@
             anio: document.getElementById('anio').value,
             color: document.getElementById('color').value,
             combustible: document.getElementById('combustible').value,
-            km: document.getElementById('km').value,
+            km: cleanN('km'),
             dueno: document.getElementById('dueno').value,
-            fono: document.getElementById('fono').value,
-            pDueno: document.getElementById('pDueno').value,
-            pVenta: document.getElementById('pVenta').value,
+            fono: cleanN('fono'), 
+            pDueno: cleanN('pDueno'),
+            pVenta: cleanN('pVenta'),
             obs: document.getElementById('obs').value
         };
-
         let db = JSON.parse(localStorage.getItem('autosDB_vFinal')) || [];
-        if (editId) {
-            db = db.map(item => item.id === car.id ? car : item);
-        } else {
-            db.push(car);
-        }
-
+        if (editId) db = db.map(item => item.id === car.id ? car : item);
+        else db.push(car);
         localStorage.setItem('autosDB_vFinal', JSON.stringify(db));
         closeModal();
         loadInventory();
     };
 
     function formatPrice(val) {
-        return val ? '$' + Number(val).toLocaleString() : '<span class="empty-field">Pendiente</span>';
+        return val ? '$' + Number(val).toLocaleString("de-DE") : '<span class="empty-field">Pendiente</span>';
     }
 
     function loadInventory() {
         const db = JSON.parse(localStorage.getItem('autosDB_vFinal')) || [];
         const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        
         inventoryBody.innerHTML = '';
-
         const filtered = db.filter(car => 
             car.patente.toLowerCase().includes(searchTerm) || 
             car.marca.toLowerCase().includes(searchTerm) || 
             car.modelo.toLowerCase().includes(searchTerm) ||
             car.dueno.toLowerCase().includes(searchTerm)
         );
-
         if (filtered.length === 0) {
             inventoryBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:3rem; color:#94a3b8">No se encontraron resultados.</td></tr>';
             return;
         }
-
         filtered.sort((a, b) => b.id - a.id).forEach(car => {
-            const isIncomplete = !car.patente || !car.pVenta || !car.km;
             const tr = document.createElement('tr');
+            let displayFono = "";
+            if (car.fono) {
+                if (car.fono.startsWith("56")) {
+                    displayFono = `+56 ${car.fono.substring(2,3)} ${car.fono.substring(3,7)} ${car.fono.substring(7,11)}`;
+                } else {
+                    displayFono = `${car.fono.substring(0,1)} ${car.fono.substring(1,5)} ${car.fono.substring(5,9)}`;
+                }
+            }
+            let dialFono = car.fono;
+            if (dialFono && !dialFono.startsWith("56") && dialFono.length === 9) dialFono = "56" + dialFono;
             tr.innerHTML = `
                 <td>
                     ${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/ PATENTE</span>'}<br>
@@ -326,9 +399,9 @@
                 <td><small>${car.combustible || '-'}</small></td>
                 <td>
                     <small>${car.dueno || '<span class="empty-field">S/ Nombre</span>'}</small><br>
-                    ${car.fono ? `<a href="tel:${car.fono}" style="text-decoration:none; color:var(--primary); font-size:0.8rem">📞 Llamar</a>` : ''}
+                    ${car.fono ? `<a href="tel:+${dialFono}" style="text-decoration:none; color:var(--primary); font-size:0.8rem">📞 ${displayFono}</a>` : ''}
                 </td>
-                <td>${car.km ? Number(car.km).toLocaleString() : '-'}</td>
+                <td>${car.km ? Number(car.km).toLocaleString("de-DE") : '-'}</td>
                 <td>
                     <div style="font-size:0.7rem; color:var(--secondary)">C: ${formatPrice(car.pDueno)}</div>
                     <div style="color:var(--success); font-weight:bold">V: ${formatPrice(car.pVenta)}</div>
