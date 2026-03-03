@@ -3,95 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AutoGestión Pro | Cloud v2.1</title>
+    <title>AutoGestión Pro | Cloud v3</title>
     <style>
         :root { --primary: #4f46e5; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --dark: #1e293b; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b; }
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; padding-bottom: 90px; color: var(--dark); }
 
+        /* NAV */
         nav { background: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }
         .logo { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
 
         .backup-controls { display: flex; gap: 8px; align-items: center; }
-        .btn-backup { 
-            padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); 
-            background: white; cursor: pointer; font-size: 0.75rem; font-weight: bold;
-            color: var(--secondary); display: flex; align-items: center; gap: 4px;
-        }
+        .btn-backup { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 0.75rem; font-weight: bold; color: var(--secondary); display: flex; align-items: center; gap: 4px; }
         .btn-upload-cloud { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
-        .btn-upload-cloud:hover { background-color: #fecaca; }
-
+        
         .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
         .search-container { margin-bottom: 1rem; display: flex; gap: 10px; }
         #searchInput { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
 
+        /* BOTÓN FLOTANTE MÓVIL */
         .btn-add-mobile { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); font-size: 24px; display: flex; align-items: center; justify-content: center; z-index: 99; cursor: pointer; }
-        @media (min-width: 768px) { 
-            .btn-add-mobile { position: static; width: auto; height: auto; border-radius: 8px; padding: 0.6rem 1.2rem; font-size: 0.95rem; }
-            .btn-text { display: inline; } .btn-plus { display: none; } body { padding-bottom: 0; }
-        }
-        .btn-text { display: none; }
+        @media (min-width: 768px) { .btn-add-mobile { position: static; width: auto; height: auto; border-radius: 8px; padding: 0.6rem 1.2rem; font-size: 0.95rem; } .btn-plus { display: none; } }
 
-        /* Estilos Tabla y Tarjetas */
-        .table-card { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
-        table { width: 100%; border-collapse: collapse; }
+        /* --- ESTILOS TARJETAS MEJORADOS --- */
+        .inventory-grid { display: grid; gap: 1rem; }
         
-        /* Ocultar encabezados en móvil */
-        @media (max-width: 767px) { thead { display: none; } }
-        @media (min-width: 768px) { 
+        /* Estilo base (Mobile First - Tarjeta) */
+        .card-item { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
+        
+        .card-header { padding: 1rem; border-bottom: 1px solid var(--light); display: flex; justify-content: space-between; align-items: start; background: #fdfdfd; }
+        .card-title { font-weight: 800; font-size: 1.1rem; color: var(--dark); display: block; }
+        .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 2px; display: block; }
+        
+        .card-body { padding: 1rem; font-size: 0.9rem; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; }
+        .info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .info-label { color: var(--secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        .info-val { font-weight: 500; text-align: right; }
+
+        .card-footer { background: #f8fafc; padding: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
+        
+        .price-box { display: flex; flex-direction: column; gap: 2px; }
+        .price-cost { font-size: 0.75rem; color: var(--secondary); }
+        .price-sale { font-size: 1.1rem; font-weight: 800; color: var(--success); }
+
+        .actions-box { display: flex; gap: 8px; }
+
+        /* Badges y Etiquetas */
+        .badge-patente { background: #1e293b; color: white; padding: 3px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; font-size: 0.85rem; }
+        .badge-incomplete { background: #fff7ed; color: #c2410c; padding: 2px 6px; border-radius: 4px; border: 1px solid #fdba74; font-size: 0.7rem; }
+        .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; border: 1px solid #bfdbfe; cursor: pointer; display: inline-block; margin-top: 4px; }
+        .ig-btn { background: #fae8ff; color: #86198f; border: 1px solid #f0abfc; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
+        .obs-box { background: #fffbeb; color: #92400e; padding: 8px; margin-top: 8px; border-radius: 6px; font-size: 0.8rem; border-left: 3px solid #f59e0b; font-style: italic; }
+
+        /* Botones Acción */
+        .btn-action { padding: 8px 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        .btn-edit { background: white; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-delete { background: white; border: 1px solid var(--danger); color: var(--danger); }
+
+        /* VISTA ESCRITORIO (TABLA) */
+        .desktop-table-container { display: none; } /* Oculto en móvil */
+
+        @media (min-width: 900px) {
+            .inventory-grid { display: none; } /* Ocultar tarjetas en PC */
+            .desktop-table-container { display: block; background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+            table { width: 100%; border-collapse: collapse; }
             th { background: #f1f5f9; padding: 1rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: var(--secondary); }
+            td { padding: 1rem; border-top: 1px solid var(--border); vertical-align: top; }
         }
 
-        /* Fila del Auto */
-        .car-row { border-bottom: 1px solid var(--border); }
-        .car-row:last-child { border-bottom: none; }
-        td { padding: 1rem; vertical-align: top; }
-
-        /* Diseño Móvil de la fila */
-        @media (max-width: 767px) {
-            .car-row { display: flex; flex-direction: column; padding: 1rem; gap: 8px; }
-            td { padding: 2px 0; display: flex; justify-content: space-between; border: none; }
-            td::before { content: attr(data-label); font-weight: bold; color: var(--secondary); font-size: 0.8rem; text-transform: uppercase; margin-right: 10px; }
-            /* Ocultar celdas vacías o específicas en móvil si se desea */
-            .obs-row { margin-top: 8px; padding-top: 8px; border-top: 1px dashed #eee; display: block !important; }
-            .actions-cell { margin-top: 10px; display: block !important; }
-        }
-
-        /* Estilos Nuevos Elementos */
-        .id-badge {
-            background: #eff6ff; color: var(--primary); padding: 4px 8px; border-radius: 6px; 
-            font-size: 0.75rem; font-weight: bold; cursor: pointer; border: 1px dashed #bfdbfe;
-            display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s;
-        }
-        .id-badge:active { background: var(--primary); color: white; }
+        /* MODAL */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background: white; width: 95%; max-width: 700px; max-height: 90vh; overflow-y: auto; padding: 1.5rem; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
         
-        .ig-btn {
-            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); 
-            color: white; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; text-decoration: none; 
-            font-weight: bold; display: inline-flex; align-items: center; gap: 4px;
-        }
-        
-        .obs-text {
-            font-size: 0.85rem; color: var(--secondary); font-style: italic; 
-            background: #f8fafc; padding: 8px; border-radius: 6px; margin-top: 5px; display: block;
-        }
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
-        .modal-content { background: white; width: 100%; max-height: 95vh; overflow-y: auto; padding: 1.5rem; border-radius: 20px 20px 0 0; animation: slideUp 0.3s ease-out; }
-        @media (min-width: 768px) { .modal-overlay { align-items: center; } .modal-content { width: 95%; max-width: 700px; border-radius: 16px; } }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        .form-grid { display: grid; grid-template-columns: 1fr; gap: 0.8rem; margin-top: 1rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem; }
         @media (min-width: 600px) { .form-grid { grid-template-columns: 1fr 1fr 1fr; } .full-row { grid-column: span 3; } .half-row { grid-column: span 2; } }
-        input, textarea, select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; box-sizing: border-box; font-size: 16px; background-color: #fff; }
-        label { font-size: 0.7rem; font-weight: 700; color: var(--secondary); margin-bottom: 4px; display: block; text-transform: uppercase; }
-        
-        .badge-patente { background: #1e293b; color: white; padding: 2px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; }
-        .badge-incomplete { background: #fff7ed; color: #c2410c; font-size: 0.65rem; padding: 2px 4px; border-radius: 4px; border: 1px solid #fdba74; }
-        .btn-action { padding: 10px 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; flex: 1; text-align: center; font-size: 0.8rem; }
-        .btn-edit { background: #e0e7ff; color: var(--primary); }
-        .btn-delete { background: #fee2e2; color: var(--danger); }
-        .watermark { position: fixed; bottom: 10px; right: 10px; font-size: 0.8rem; color: rgba(0, 0, 0, 0.2); pointer-events: none; z-index: 1000; }
+        input, textarea, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; }
+        label { font-size: 0.75rem; font-weight: 700; color: var(--secondary); margin-bottom: 4px; display: block; text-transform: uppercase; }
+
         .loading-bar { height: 4px; background: var(--primary); width: 0%; transition: width 0.3s; position: fixed; top: 0; left: 0; z-index: 200; }
+        .watermark { position: fixed; bottom: 10px; right: 10px; font-size: 0.8rem; color: rgba(0, 0, 0, 0.2); pointer-events: none; z-index: 1000; }
     </style>
 </head>
 <body>
@@ -104,56 +94,58 @@
         <div style="font-size:0.7rem" id="statusMsg"></div>
     </div>
     <div class="backup-controls">
-        <button class="btn-backup" onclick="exportData()">📥 <span class="btn-text">Backup</span></button>
-        <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 <span class="btn-text">Restaurar</span></button>
+        <button class="btn-backup" onclick="exportData()">📥 Backup</button>
+        <button class="btn-backup" onclick="document.getElementById('importFile').click()">📤 Restaurar</button>
         <input type="file" id="importFile" style="display:none" accept=".json" onchange="importDataLocal(event)">
-        <button class="btn-backup btn-upload-cloud" id="btnCloudSync" onclick="pushToCloud()" style="display:none;">☁️ <span class="btn-text">Subir Info</span></button>
+        <button class="btn-backup btn-upload-cloud" id="btnCloudSync" onclick="pushToCloud()" style="display:none;">☁️ Subir Info</button>
     </div>
     <button class="btn-add-mobile" onclick="openModal()">+</button>
 </nav>
 
 <div class="main-content">
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="🔍 Buscar..." onkeyup="filterInventory()">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar por patente, modelo, ID..." onkeyup="filterInventory()">
     </div>
 
-    <div class="table-card">
+    <!-- VISTA MÓVIL (TARJETAS) -->
+    <div id="inventoryCards" class="inventory-grid"></div>
+
+    <!-- VISTA ESCRITORIO (TABLA) -->
+    <div class="desktop-table-container">
         <table>
             <thead>
                 <tr>
                     <th>Vehículo / ID</th>
-                    <th>Año/Color</th>
                     <th>Detalles</th>
                     <th>Dueño</th>
-                    <th>Precios</th>
-                    <th>Redes / Obs</th>
+                    <th>Económico</th>
+                    <th>Obs / Redes</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
-            <tbody id="inventoryBody"></tbody>
+            <tbody id="inventoryTableBody"></tbody>
         </table>
     </div>
 </div>
 
+<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
             <h2 id="modalTitle" style="margin:0; font-size: 1.2rem;">Ficha Vehículo</h2>
-            <button onclick="closeModal()" style="background:#f1f5f9; border:none; width:35px; height:35px; border-radius:50%; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <button onclick="closeModal()" style="background:#f1f5f9; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer; font-weight:bold;">&times;</button>
         </div>
         <form id="carForm">
             <input type="hidden" id="editId">
             <div class="form-grid">
-                <!-- NUEVOS CAMPOS -->
-                <div><label>ID Externo (Copiable)</label><input type="text" id="idExterno" placeholder="Ej: 14590"></div>
-                <div class="half-row"><label>Link Instagram</label><input type="url" id="instagram" placeholder="https://instagram.com/p/..."></div>
-                <!-- FIN NUEVOS CAMPOS -->
-
+                <div><label>ID Externo</label><input type="text" id="idExterno" placeholder="Ej: 14590"></div>
+                <div class="half-row"><label>Instagram URL</label><input type="url" id="instagram" placeholder="https://..."></div>
+                
                 <div><label>Patente</label><input type="text" id="patente" placeholder="ABCD-12"></div>
-                <div><label>Marca</label><input type="text" id="marca" placeholder="Ej: Kia"></div>
-                <div><label>Modelo</label><input type="text" id="modelo" placeholder="Ej: Sportage"></div>
-                <div><label>Año</label><input type="text" id="anio" inputmode="numeric" placeholder="2024"></div>
-                <div><label>Color</label><input type="text" id="color" placeholder="Blanco"></div>
+                <div><label>Marca</label><input type="text" id="marca"></div>
+                <div><label>Modelo</label><input type="text" id="modelo"></div>
+                <div><label>Año</label><input type="text" id="anio" inputmode="numeric"></div>
+                <div><label>Color</label><input type="text" id="color"></div>
                 <div>
                     <label>Combustible</label>
                     <select id="combustible">
@@ -163,15 +155,15 @@
                         <option value="Híbrido">Híbrido</option>
                     </select>
                 </div>
-                <div><label>Kilometraje</label><input type="text" id="km" inputmode="numeric" oninput="formatMiles(this)" placeholder="0"></div>
-                <div><label>Nombre Dueño</label><input type="text" id="dueno"></div>
-                <div><label>Teléfono</label><input type="tel" id="fono" inputmode="tel" placeholder="9..." oninput="formatPhone(this)"></div>
-                <div><label>Costo Dueño ($)</label><input type="text" id="pDueno" inputmode="numeric" oninput="formatMiles(this)" placeholder="0"></div>
-                <div><label>Precio Venta ($)</label><input type="text" id="pVenta" inputmode="numeric" oninput="formatMiles(this)" placeholder="0"></div>
-                <div class="full-row"><label>Observaciones</label><textarea id="obs" rows="2" placeholder="Detalles visibles en inicio..."></textarea></div>
+                <div><label>KM</label><input type="text" id="km" inputmode="numeric" oninput="formatInput(this)"></div>
+                <div><label>Dueño</label><input type="text" id="dueno"></div>
+                <div><label>Teléfono</label><input type="tel" id="fono" inputmode="tel" oninput="formatPhoneInput(this)"></div>
+                <div><label>Costo ($)</label><input type="text" id="pDueno" inputmode="numeric" oninput="formatInput(this)"></div>
+                <div><label>Venta ($)</label><input type="text" id="pVenta" inputmode="numeric" oninput="formatInput(this)"></div>
+                <div class="full-row"><label>Observaciones</label><textarea id="obs" rows="2"></textarea></div>
             </div>
             <div style="margin-top: 1.5rem;">
-                <button type="submit" id="btnSubmit" style="background:var(--primary); color:white; width:100%; padding:15px; border-radius:10px; border:none; font-weight:bold; font-size:1rem; cursor:pointer;">Guardar Registro</button>
+                <button type="submit" id="btnSubmit" style="background:var(--primary); color:white; width:100%; padding:15px; border-radius:8px; border:none; font-weight:bold; cursor:pointer;">Guardar</button>
             </div>
         </form>
     </div>
@@ -188,13 +180,14 @@
 
     const modal = document.getElementById('modalOverlay');
     const carForm = document.getElementById('carForm');
-    const inventoryBody = document.getElementById('inventoryBody');
+    const cardsContainer = document.getElementById('inventoryCards');
+    const tableBody = document.getElementById('inventoryTableBody');
     const loader = document.getElementById('loadingBar');
     let inventoryData = []; 
 
     // --- CARGAR DATOS ---
     async function loadInventory() {
-        if(GOOGLE_SCRIPT_URL.includes("AQUI_PEGA")) { alert("⚠️ Configura la URL en el HTML"); return; }
+        if(GOOGLE_SCRIPT_URL.includes("AQUI_PEGA")) { alert("⚠️ Falta configurar URL en HTML"); return; }
         loader.style.width = "50%";
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
@@ -209,73 +202,106 @@
         } finally { loader.style.width = "0%"; }
     }
 
-    // --- RENDERIZADO CON CORRECCIÓN DE ERROR ---
+    // --- FORMATEADOR DE DINERO Y KM PARA MOSTRAR ---
+    function formatMoney(num) {
+        if (!num) return '-';
+        return Number(num).toLocaleString('de-DE'); // Usa puntos para miles (formato Chile/Alemania)
+    }
+
+    // --- RENDERIZADO (TARJETAS + TABLA) ---
     function renderInventory(data) {
-        inventoryBody.innerHTML = '';
+        cardsContainer.innerHTML = '';
+        tableBody.innerHTML = '';
+
         if (data.length === 0) {
-            inventoryBody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:3rem; color:#94a3b8">Sin resultados.</td></tr>';
+            cardsContainer.innerHTML = '<div style="text-align:center; padding:2rem; color:#aaa">No hay autos registrados.</div>';
             return;
         }
+
+        // Ordenar: más nuevo primero
         data.sort((a, b) => b.id - a.id).forEach(car => {
-            const tr = document.createElement('tr');
-            tr.className = "car-row";
+            // Preparar variables comunes
+            const idHtml = car.idExterno ? `<div class="id-badge" onclick="copyText('${car.idExterno}')">🆔 ${car.idExterno}</div>` : '';
+            const igHtml = car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Instagram</a>` : '';
+            const obsHtml = car.obs ? `<div class="obs-box">📝 ${car.obs}</div>` : '';
             
-            // Lógica ID Externo
-            const idExtHtml = car.idExterno 
-                ? `<div class="id-badge" onclick="copyText('${car.idExterno}')">🆔 ${car.idExterno}</div>` 
-                : '';
+            // Corrección Teléfono (Evita error replace)
+            const fonoRaw = car.fono ? String(car.fono).replace(/\D/g,'') : '';
+            const fonoLink = fonoRaw ? `<a href="tel:+${fonoRaw}" style="color:var(--primary);text-decoration:none">📞 Llamar</a>` : '';
 
-            // Lógica Instagram
-            const igHtml = car.instagram 
-                ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Ver en IG</a>` 
-                : '';
-
-            // CORRECCIÓN AQUÍ: Convertimos car.fono a String antes del replace
-            const fonoLimpio = car.fono ? String(car.fono).replace(/\D/g,'') : '';
-            const linkFono = fonoLimpio ? `<br><a href="tel:+${fonoLimpio}" style="color:var(--primary)">📞 Llamar</a>` : '';
-
-            tr.innerHTML = `
-                <td data-label="Vehículo">
-                    ${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/ PATENTE</span>'}
-                    <div style="margin-top:4px; font-weight:800">${car.marca} ${car.modelo}</div>
-                    <div style="margin-top:4px">${idExtHtml}</div>
-                </td>
-                <td data-label="Info">${car.anio} / ${car.color}</td>
-                <td data-label="Motor">${car.combustible}<br>${car.km ? car.km + ' km' : ''}</td>
-                <td data-label="Dueño">
-                    <small style="font-weight:bold">${car.dueno}</small>
-                    ${linkFono}
-                </td>
-                <td data-label="Precios">
-                    <div style="font-size:0.75rem; color:var(--secondary)">C: ${car.pDueno}</div>
-                    <div style="color:var(--success); font-weight:bold">V: ${car.pVenta}</div>
-                </td>
-                <td data-label="Extras" class="obs-row">
-                    ${igHtml}
-                    ${car.obs ? `<span class="obs-text">📝 ${car.obs}</span>` : ''}
-                </td>
-                <td class="actions-cell">
-                    <div style="display:flex; gap:5px; flex-wrap:wrap;">
+            // --- 1. RENDERIZAR TARJETA MÓVIL ---
+            const card = document.createElement('div');
+            card.className = 'card-item';
+            card.innerHTML = `
+                <div class="card-header">
+                    <div>
+                        <span class="card-title">${car.marca} ${car.modelo}</span>
+                        <span class="card-subtitle">${car.anio} • ${car.combustible}</span>
+                        ${idHtml}
+                    </div>
+                    <div>${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/P</span>'}</div>
+                </div>
+                <div class="card-body">
+                    <div class="info-row"><span class="info-label">Kilometraje</span> <span class="info-val">${formatMoney(car.km)} km</span></div>
+                    <div class="info-row"><span class="info-label">Color</span> <span class="info-val">${car.color}</span></div>
+                    <div class="info-row"><span class="info-label">Dueño</span> <span class="info-val">${car.dueno}</span></div>
+                    <div class="info-row"><span class="info-label">Contacto</span> <span class="info-val">${fonoLink}</span></div>
+                    ${obsHtml}
+                    <div style="margin-top:8px; text-align:right">${igHtml}</div>
+                </div>
+                <div class="card-footer">
+                    <div class="price-box">
+                        <span class="price-cost">Costo: $${formatMoney(car.pDueno)}</span>
+                        <span class="price-sale">$${formatMoney(car.pVenta)}</span>
+                    </div>
+                    <div class="actions-box">
                         <button class="btn-action btn-edit" onclick='editCar(${JSON.stringify(car)})'>Editar</button>
                         <button class="btn-action btn-delete" onclick="deleteCar(${car.id})">Borrar</button>
                     </div>
+                </div>
+            `;
+            cardsContainer.appendChild(card);
+
+            // --- 2. RENDERIZAR TABLA DE ESCRITORIO ---
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    ${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/P</span>'}<br>
+                    <strong>${car.marca} ${car.modelo}</strong><br>
+                    ${idHtml}
+                </td>
+                <td>${car.anio}<br><small>${car.color}</small><br><small>${formatMoney(car.km)} km</small></td>
+                <td>${car.dueno}<br>${fonoLink}</td>
+                <td>
+                    <div style="color:var(--secondary); font-size:0.8rem">C: $${formatMoney(car.pDueno)}</div>
+                    <div style="color:var(--success); font-weight:bold">V: $${formatMoney(car.pVenta)}</div>
+                </td>
+                <td style="font-size:0.85rem">
+                    ${igHtml}
+                    ${car.obs ? `<div style="margin-top:5px; font-style:italic; color:#666">${car.obs}</div>` : ''}
+                </td>
+                <td>
+                    <div style="display:flex; gap:5px;">
+                        <button class="btn-action btn-edit" onclick='editCar(${JSON.stringify(car)})'>✏️</button>
+                        <button class="btn-action btn-delete" onclick="deleteCar(${car.id})">🗑️</button>
+                    </div>
                 </td>
             `;
-            inventoryBody.appendChild(tr);
+            tableBody.appendChild(tr);
         });
     }
 
-    // --- FUNCIONES ---
-    function copyText(text) {
-        navigator.clipboard.writeText(text).then(() => alert(`ID Copiado: ${text}`));
-    }
+    // --- UTILS ---
+    function copyText(text) { navigator.clipboard.writeText(text).then(() => alert(`Copiado: ${text}`)); }
+    function formatInput(i) { let v = i.value.replace(/\D/g, ""); i.value = v ? Number(v).toLocaleString("de-DE") : ""; }
+    function formatPhoneInput(i) { let v = i.value.replace(/\D/g,""); if(v) i.value = v; }
 
     // --- FORMULARIO Y GUARDADO ---
     carForm.onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById('btnSubmit');
         const originalTxt = btn.innerText;
-        btn.innerText = "Guardando..."; btn.disabled = true;
+        btn.innerText = "⏳ Guardando..."; btn.disabled = true;
 
         const formData = {
             editId: document.getElementById('editId').value,
@@ -287,13 +313,20 @@
             anio: document.getElementById('anio').value,
             color: document.getElementById('color').value,
             combustible: document.getElementById('combustible').value,
-            km: document.getElementById('km').value,
+            km: document.getElementById('km').value, // Se envía con puntos o limpio según prefieras, el script Google lo recibe string
             dueno: document.getElementById('dueno').value,
             fono: document.getElementById('fono').value,
             pDueno: document.getElementById('pDueno').value,
             pVenta: document.getElementById('pVenta').value,
             obs: document.getElementById('obs').value
         };
+
+        // Limpiar puntos antes de enviar para que Google Sheets tenga números limpios si quieres operar después
+        // Opcional: Si quieres guardar "5.000.000" como texto, déjalo así. 
+        // Si quieres guardar el número 5000000, descomenta las siguientes líneas:
+        formData.km = formData.km.replace(/\./g, "");
+        formData.pDueno = formData.pDueno.replace(/\./g, "");
+        formData.pVenta = formData.pVenta.replace(/\./g, "");
 
         try {
             await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(formData) });
@@ -307,23 +340,28 @@
         modal.style.display='flex'; document.getElementById('modalTitle').innerText="Editar Ficha"; document.getElementById('btnSubmit').innerText="Actualizar";
         document.getElementById('editId').value = c.id;
         
-        // Cargar campos
         document.getElementById('idExterno').value = c.idExterno || "";
         document.getElementById('instagram').value = c.instagram || "";
         document.getElementById('patente').value = c.patente; document.getElementById('marca').value = c.marca;
         document.getElementById('modelo').value = c.modelo; document.getElementById('anio').value = c.anio; document.getElementById('color').value = c.color;
-        document.getElementById('combustible').value = c.combustible; document.getElementById('km').value = c.km; document.getElementById('dueno').value = c.dueno;
-        document.getElementById('fono').value = c.fono; document.getElementById('pDueno').value = c.pDueno; document.getElementById('pVenta').value = c.pVenta; document.getElementById('obs').value = c.obs;
+        document.getElementById('combustible').value = c.combustible; 
+        
+        // Cargar valores y dar formato visual
+        document.getElementById('km').value = formatMoney(c.km); 
+        document.getElementById('dueno').value = c.dueno;
+        document.getElementById('fono').value = c.fono; 
+        document.getElementById('pDueno').value = formatMoney(c.pDueno); 
+        document.getElementById('pVenta').value = formatMoney(c.pVenta); 
+        document.getElementById('obs').value = c.obs;
     }
 
-    // --- BACKUP ---
+    // --- FUNCIONES SISTEMA ---
     function exportData() {
-        if (!inventoryData.length) return alert('Nada para exportar.');
+        if (!inventoryData.length) return alert('Vacío.');
         const blob = new Blob([JSON.stringify(inventoryData, null, 2)], { type: 'application/json' });
         const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = `backup_autos_${new Date().toISOString().split('T')[0]}.json`; a.click();
+        a.download = `backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
     }
-
     function importDataLocal(event) {
         const file = event.target.files[0]; if (!file) return;
         const reader = new FileReader();
@@ -331,38 +369,27 @@
             try {
                 inventoryData = JSON.parse(e.target.result);
                 renderInventory(inventoryData);
-                alert('⚠️ Datos cargados LOCALMENTE. Presiona "☁️ Subir Info" para guardar en la nube.');
+                alert('Vista Previa Cargada. Presiona "Subir Info" para guardar en nube.');
                 document.getElementById('btnCloudSync').style.display = 'flex';
-                document.getElementById('statusMsg').innerText = "⚠️ Cambios Locales";
             } catch (err) { alert('Error archivo.'); }
-        };
-        reader.readAsText(file);
-        event.target.value = '';
+        }; reader.readAsText(file); event.target.value = '';
     }
-
     async function pushToCloud() {
-        if(!confirm("⚠️ ¿REEMPLAZAR TODO en la nube con esta información local?")) return;
+        if(!confirm("⚠️ ¿Reemplazar toda la nube con estos datos?")) return;
         loader.style.width = "70%";
         try {
             await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "bulk_replace", inventory: inventoryData }) });
-            alert("✅ Nube actualizada.");
-            document.getElementById('btnCloudSync').style.display = 'none';
-            loadInventory();
-        } catch (error) { alert("Error al subir."); }
-        finally { loader.style.width = "0%"; }
+            alert("✅ Listo."); document.getElementById('btnCloudSync').style.display = 'none'; loadInventory();
+        } catch (error) { alert("Error."); } finally { loader.style.width = "0%"; }
     }
-
-    // UTILIDADES
-    async function deleteCar(id) { if(confirm('¿Borrar permanentemente?')) { await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: id }) }); loadInventory(); } }
+    async function deleteCar(id) { if(confirm('¿Borrar?')) { await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: id }) }); loadInventory(); } }
     function filterInventory() {
         const term = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = inventoryData.filter(c => String(c.patente).toLowerCase().includes(term) || String(c.marca).toLowerCase().includes(term) || String(c.dueno).toLowerCase().includes(term) || String(c.idExterno).includes(term));
+        const filtered = inventoryData.filter(c => String(c.patente).toLowerCase().includes(term) || String(c.marca).toLowerCase().includes(term) || String(c.idExterno).includes(term) || String(c.modelo).toLowerCase().includes(term));
         renderInventory(filtered);
     }
-    function openModal() { modal.style.display='flex'; document.getElementById('modalTitle').innerText="Nuevo Ingreso"; document.getElementById('btnSubmit').innerText="Guardar"; carForm.reset(); document.getElementById('editId').value=""; }
+    function openModal() { modal.style.display='flex'; document.getElementById('modalTitle').innerText="Nuevo"; document.getElementById('btnSubmit').innerText="Guardar"; carForm.reset(); document.getElementById('editId').value=""; }
     function closeModal() { modal.style.display='none'; carForm.reset(); }
-    function formatMiles(i) { let v = i.value.replace(/\D/g, ""); i.value = v ? Number(v).toLocaleString("de-DE") : ""; }
-    function formatPhone(i) { let v = i.value.replace(/\D/g,""); if(v) i.value = v; }
 
     document.addEventListener('DOMContentLoaded', loadInventory);
 </script>
