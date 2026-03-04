@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AutoGestión Pro | Cloud v3</title>
+    <title>AutoGestión Pro | Admin</title>
     <style>
         :root { --primary: #4f46e5; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --dark: #1e293b; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b; }
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; padding-bottom: 90px; color: var(--dark); }
@@ -17,64 +17,65 @@
         .btn-upload-cloud { background-color: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
         
         .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
-        .search-container { margin-bottom: 1rem; display: flex; gap: 10px; }
+        .search-container { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 8px; }
         #searchInput { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        
+        /* Contador de stock */
+        .stock-counter { font-size: 0.85rem; color: var(--secondary); font-weight: 600; padding-left: 5px; }
 
         /* BOTÓN FLOTANTE MÓVIL */
         .btn-add-mobile { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); font-size: 24px; display: flex; align-items: center; justify-content: center; z-index: 99; cursor: pointer; }
-        @media (min-width: 768px) { .btn-add-mobile { position: static; width: auto; height: auto; border-radius: 8px; padding: 0.6rem 1.2rem; font-size: 0.95rem; } .btn-plus { display: none; } }
+        @media (min-width: 768px) { .btn-add-mobile { position: static; width: auto; height: auto; border-radius: 8px; padding: 0.6rem 1.2rem; font-size: 0.95rem; } }
 
-        /* --- ESTILOS TARJETAS MEJORADOS --- */
+        /* --- ESTILOS TARJETAS --- */
         .inventory-grid { display: grid; gap: 1rem; }
-        
-        /* Estilo base (Mobile First - Tarjeta) */
-        .card-item { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; }
-        
-        .card-header { padding: 1rem; border-bottom: 1px solid var(--light); display: flex; justify-content: space-between; align-items: start; background: #fdfdfd; }
+        .card-item { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; position: relative; transition: all 0.3s; }
+        .card-item.is-sold { background-color: #fef2f2; border-color: #fca5a5; }
+        .card-item.is-sold::after { 
+            content: "VENDIDO"; position: absolute; top: 40%; left: 50%; 
+            transform: translate(-50%, -50%) rotate(-15deg); 
+            font-size: 3rem; font-weight: 900; color: rgba(239, 68, 68, 0.15); 
+            pointer-events: none; border: 4px solid rgba(239, 68, 68, 0.15); 
+            padding: 10px; border-radius: 10px; z-index: 0;
+        }
+
+        .card-header { padding: 1rem; border-bottom: 1px solid var(--light); display: flex; justify-content: space-between; align-items: start; background: #fdfdfd; z-index: 1; }
         .card-title { font-weight: 800; font-size: 1.1rem; color: var(--dark); display: block; }
         .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 2px; display: block; }
-        
-        .card-body { padding: 1rem; font-size: 0.9rem; }
+        .card-body { padding: 1rem; font-size: 0.9rem; z-index: 1; }
         .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; }
-        .info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .info-label { color: var(--secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
         .info-val { font-weight: 500; text-align: right; }
-
-        .card-footer { background: #f8fafc; padding: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
-        
+        .card-footer { background: #f8fafc; padding: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); z-index: 1; }
         .price-box { display: flex; flex-direction: column; gap: 2px; }
         .price-cost { font-size: 0.75rem; color: var(--secondary); }
         .price-sale { font-size: 1.1rem; font-weight: 800; color: var(--success); }
-
+        .is-sold .price-sale { color: var(--danger); text-decoration: line-through; }
         .actions-box { display: flex; gap: 8px; }
 
-        /* Badges y Etiquetas */
         .badge-patente { background: #1e293b; color: white; padding: 3px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; font-size: 0.85rem; }
         .badge-incomplete { background: #fff7ed; color: #c2410c; padding: 2px 6px; border-radius: 4px; border: 1px solid #fdba74; font-size: 0.7rem; }
         .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; border: 1px solid #bfdbfe; cursor: pointer; display: inline-block; margin-top: 4px; }
         .ig-btn { background: #fae8ff; color: #86198f; border: 1px solid #f0abfc; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
         .obs-box { background: #fffbeb; color: #92400e; padding: 8px; margin-top: 8px; border-radius: 6px; font-size: 0.8rem; border-left: 3px solid #f59e0b; font-style: italic; }
 
-        /* Botones Acción */
-        .btn-action { padding: 8px 12px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+        .btn-action { padding: 8px 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
         .btn-edit { background: white; border: 1px solid var(--primary); color: var(--primary); }
         .btn-delete { background: white; border: 1px solid var(--danger); color: var(--danger); }
+        .btn-sold { background: var(--success); color: white; }
+        .btn-sold.sold-active { background: var(--danger); }
 
-        /* VISTA ESCRITORIO (TABLA) */
-        .desktop-table-container { display: none; } /* Oculto en móvil */
-
+        .desktop-table-container { display: none; } 
         @media (min-width: 900px) {
-            .inventory-grid { display: none; } /* Ocultar tarjetas en PC */
+            .inventory-grid { display: none; } 
             .desktop-table-container { display: block; background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
             table { width: 100%; border-collapse: collapse; }
             th { background: #f1f5f9; padding: 1rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: var(--secondary); }
             td { padding: 1rem; border-top: 1px solid var(--border); vertical-align: top; }
         }
 
-        /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: white; width: 95%; max-width: 700px; max-height: 90vh; overflow-y: auto; padding: 1.5rem; border-radius: 16px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
-        
         .form-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem; }
         @media (min-width: 600px) { .form-grid { grid-template-columns: 1fr 1fr 1fr; } .full-row { grid-column: span 3; } .half-row { grid-column: span 2; } }
         input, textarea, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; }
@@ -104,13 +105,12 @@
 
 <div class="main-content">
     <div class="search-container">
+        <div class="stock-counter" id="stockCounter">Cargando unidades...</div>
         <input type="text" id="searchInput" placeholder="🔍 Buscar por patente, modelo, ID..." onkeyup="filterInventory()">
     </div>
 
-    <!-- VISTA MÓVIL (TARJETAS) -->
     <div id="inventoryCards" class="inventory-grid"></div>
 
-    <!-- VISTA ESCRITORIO (TABLA) -->
     <div class="desktop-table-container">
         <table>
             <thead>
@@ -128,7 +128,6 @@
     </div>
 </div>
 
-<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
@@ -172,22 +171,17 @@
 <div class="watermark">CarlosPN Interactive®</div>
 
 <script>
-    // ==========================================
-    // ¡¡¡ PEGA TU URL DE GOOGLE AQUÍ ABAJO !!!
-    // ==========================================
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBurGXfk92kPtrTVFDI7Ukec03FYhVOHcfdl7FN95C5uLT_BnU8ltzh_nPy9gUkDDbZg/exec"; 
-    // ==========================================
 
     const modal = document.getElementById('modalOverlay');
     const carForm = document.getElementById('carForm');
     const cardsContainer = document.getElementById('inventoryCards');
     const tableBody = document.getElementById('inventoryTableBody');
     const loader = document.getElementById('loadingBar');
+    const counterDisplay = document.getElementById('stockCounter');
     let inventoryData = []; 
 
-    // --- CARGAR DATOS ---
     async function loadInventory() {
-        if(GOOGLE_SCRIPT_URL.includes("AQUI_PEGA")) { alert("⚠️ Falta configurar URL en HTML"); return; }
         loader.style.width = "50%";
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
@@ -197,41 +191,38 @@
             document.getElementById('statusMsg').innerText = "✅ Sincronizado";
             document.getElementById('btnCloudSync').style.display = 'none';
         } catch (error) {
-            console.error(error);
             document.getElementById('statusMsg').innerText = "❌ Error Conexión";
         } finally { loader.style.width = "0%"; }
     }
 
-    // --- FORMATEADOR DE DINERO Y KM PARA MOSTRAR ---
     function formatMoney(num) {
         if (!num) return '-';
-        return Number(num).toLocaleString('de-DE'); // Usa puntos para miles (formato Chile/Alemania)
+        return Number(num).toLocaleString('de-DE'); 
     }
 
-    // --- RENDERIZADO (TARJETAS + TABLA) ---
     function renderInventory(data) {
         cardsContainer.innerHTML = '';
         tableBody.innerHTML = '';
+        
+        // Actualizar contador
+        counterDisplay.innerText = `Total: ${data.length} unidad(es)`;
 
         if (data.length === 0) {
-            cardsContainer.innerHTML = '<div style="text-align:center; padding:2rem; color:#aaa">No hay autos registrados.</div>';
+            cardsContainer.innerHTML = '<div style="text-align:center; padding:2rem; color:#aaa">No hay registros.</div>';
             return;
         }
 
-        // Ordenar: más nuevo primero
         data.sort((a, b) => b.id - a.id).forEach(car => {
-            // Preparar variables comunes
+            const isSold = car.estado === "Vendido";
             const idHtml = car.idExterno ? `<div class="id-badge" onclick="copyText('${car.idExterno}')">🆔 ${car.idExterno}</div>` : '';
             const igHtml = car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Instagram</a>` : '';
             const obsHtml = car.obs ? `<div class="obs-box">📝 ${car.obs}</div>` : '';
-            
-            // Corrección Teléfono (Evita error replace)
             const fonoRaw = car.fono ? String(car.fono).replace(/\D/g,'') : '';
             const fonoLink = fonoRaw ? `<a href="tel:+${fonoRaw}" style="color:var(--primary);text-decoration:none">📞 Llamar</a>` : '';
 
-            // --- 1. RENDERIZAR TARJETA MÓVIL ---
+            // TARJETA MÓVIL
             const card = document.createElement('div');
-            card.className = 'card-item';
+            card.className = `card-item ${isSold ? 'is-sold' : ''}`;
             card.innerHTML = `
                 <div class="card-header">
                     <div>
@@ -255,98 +246,85 @@
                         <span class="price-sale">$${formatMoney(car.pVenta)}</span>
                     </div>
                     <div class="actions-box">
-                        <button class="btn-action btn-edit" onclick='editCar(${JSON.stringify(car)})'>Editar</button>
-                        <button class="btn-action btn-delete" onclick="deleteCar(${car.id})">Borrar</button>
+                        <button class="btn-action btn-sold ${isSold ? 'sold-active' : ''}" onclick="toggleStatus(${car.id}, '${isSold ? 'Disponible' : 'Vendido'}')">$</button>
+                        <button class="btn-action btn-edit" onclick='editCar(${JSON.stringify(car)})'>✏️</button>
+                        <button class="btn-action btn-delete" onclick="deleteCar(${car.id})">🗑️</button>
                     </div>
                 </div>
             `;
             cardsContainer.appendChild(card);
 
-            // --- 2. RENDERIZAR TABLA DE ESCRITORIO ---
+            // TABLA ESCRITORIO
             const tr = document.createElement('tr');
+            tr.className = isSold ? 'is-sold' : '';
             tr.innerHTML = `
-                <td>
-                    ${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/P</span>'}<br>
-                    <strong>${car.marca} ${car.modelo}</strong><br>
-                    ${idHtml}
-                </td>
+                <td>${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/P</span>'}<br><strong>${car.marca} ${car.modelo}</strong><br>${idHtml}</td>
                 <td>${car.anio}<br><small>${car.color}</small><br><small>${formatMoney(car.km)} km</small></td>
                 <td>${car.dueno}<br>${fonoLink}</td>
-                <td>
-                    <div style="color:var(--secondary); font-size:0.8rem">C: $${formatMoney(car.pDueno)}</div>
-                    <div style="color:var(--success); font-weight:bold">V: $${formatMoney(car.pVenta)}</div>
-                </td>
-                <td style="font-size:0.85rem">
-                    ${igHtml}
-                    ${car.obs ? `<div style="margin-top:5px; font-style:italic; color:#666">${car.obs}</div>` : ''}
-                </td>
-                <td>
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn-action btn-edit" onclick='editCar(${JSON.stringify(car)})'>✏️</button>
-                        <button class="btn-action btn-delete" onclick="deleteCar(${car.id})">🗑️</button>
-                    </div>
-                </td>
+                <td><div style="color:var(--secondary); font-size:0.8rem">C: $${formatMoney(car.pDueno)}</div><div style="color:var(--success); font-weight:bold">V: $${formatMoney(car.pVenta)}</div></td>
+                <td style="font-size:0.85rem">${igHtml}${car.obs ? `<div style="margin-top:5px; font-style:italic; color:#666">${car.obs}</div>` : ''}</td>
+                <td><div style="display:flex; gap:5px;"><button class="btn-action btn-edit" onclick='editCar(${JSON.stringify(car)})'>✏️</button><button class="btn-action btn-delete" onclick="deleteCar(${car.id})">🗑️</button></div></td>
             `;
             tableBody.appendChild(tr);
         });
     }
 
-    // --- UTILS ---
-    function copyText(text) { navigator.clipboard.writeText(text).then(() => alert(`Copiado: ${text}`)); }
-    function formatInput(i) { let v = i.value.replace(/\D/g, ""); i.value = v ? Number(v).toLocaleString("de-DE") : ""; }
-    function formatPhoneInput(i) { let v = i.value.replace(/\D/g,""); if(v) i.value = v; }
-
-    // --- FORMULARIO Y GUARDADO ---
+    // --- GUARDADO CON VALIDACIÓN DE PATENTE ---
     carForm.onsubmit = async (e) => {
         e.preventDefault();
+        const editId = document.getElementById('editId').value;
+        const patenteNueva = document.getElementById('patente').value.trim().toUpperCase();
+
+        if (patenteNueva !== "" && patenteNueva !== "S/P") {
+            const duplicado = inventoryData.find(car => 
+                car.patente && car.patente.trim().toUpperCase() === patenteNueva && car.id.toString() !== editId.toString()
+            );
+            if (duplicado) {
+                alert(`⚠️ ERROR: La patente ${patenteNueva} ya existe en ${duplicado.marca} ${duplicado.modelo}`);
+                return;
+            }
+        }
+
         const btn = document.getElementById('btnSubmit');
         const originalTxt = btn.innerText;
         btn.innerText = "⏳ Guardando..."; btn.disabled = true;
 
         const formData = {
-            editId: document.getElementById('editId').value,
+            editId: editId,
             idExterno: document.getElementById('idExterno').value, 
             instagram: document.getElementById('instagram').value,
-            patente: document.getElementById('patente').value.toUpperCase(),
+            patente: patenteNueva,
             marca: document.getElementById('marca').value,
             modelo: document.getElementById('modelo').value,
             anio: document.getElementById('anio').value,
             color: document.getElementById('color').value,
             combustible: document.getElementById('combustible').value,
-            km: document.getElementById('km').value, // Se envía con puntos o limpio según prefieras, el script Google lo recibe string
+            km: document.getElementById('km').value.replace(/\./g, ""),
             dueno: document.getElementById('dueno').value,
             fono: document.getElementById('fono').value,
-            pDueno: document.getElementById('pDueno').value,
-            pVenta: document.getElementById('pVenta').value,
+            pDueno: document.getElementById('pDueno').value.replace(/\./g, ""),
+            pVenta: document.getElementById('pVenta').value.replace(/\./g, ""),
             obs: document.getElementById('obs').value
         };
-
-        // Limpiar puntos antes de enviar para que Google Sheets tenga números limpios si quieres operar después
-        // Opcional: Si quieres guardar "5.000.000" como texto, déjalo así. 
-        // Si quieres guardar el número 5000000, descomenta las siguientes líneas:
-        formData.km = formData.km.replace(/\./g, "");
-        formData.pDueno = formData.pDueno.replace(/\./g, "");
-        formData.pVenta = formData.pVenta.replace(/\./g, "");
 
         try {
             await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(formData) });
             closeModal();
             loadInventory();
-        } catch (error) { alert("Error: " + error); } 
-        finally { btn.innerText = originalTxt; btn.disabled = false; }
+        } catch (error) { alert("Error."); } finally { btn.innerText = originalTxt; btn.disabled = false; }
     };
 
     function editCar(c) { 
-        modal.style.display='flex'; document.getElementById('modalTitle').innerText="Editar Ficha"; document.getElementById('btnSubmit').innerText="Actualizar";
+        modal.style.display='flex'; 
         document.getElementById('editId').value = c.id;
-        
         document.getElementById('idExterno').value = c.idExterno || "";
         document.getElementById('instagram').value = c.instagram || "";
-        document.getElementById('patente').value = c.patente; document.getElementById('marca').value = c.marca;
-        document.getElementById('modelo').value = c.modelo; document.getElementById('anio').value = c.anio; document.getElementById('color').value = c.color;
+        document.getElementById('patente').value = c.patente || ""; 
+        document.getElementById('marca').value = c.marca;
+        document.getElementById('modelo').value = c.modelo; 
+        document.getElementById('anio').value = c.anio; 
+        document.getElementById('color').value = c.color;
         document.getElementById('combustible').value = c.combustible; 
-        
-        // Cargar valores y dar formato visual
         document.getElementById('km').value = formatMoney(c.km); 
         document.getElementById('dueno').value = c.dueno;
         document.getElementById('fono').value = c.fono; 
@@ -355,44 +333,58 @@
         document.getElementById('obs').value = c.obs;
     }
 
-    // --- FUNCIONES SISTEMA ---
-    function exportData() {
-        if (!inventoryData.length) return alert('Vacío.');
-        const blob = new Blob([JSON.stringify(inventoryData, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = `backup_${new Date().toISOString().split('T')[0]}.json`; a.click();
+    async function toggleStatus(id, newStatus) {
+        if(!confirm(`¿Marcar como ${newStatus}?`)) return;
+        loader.style.width = "40%";
+        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "toggle_status", id: id, newStatus: newStatus }) });
+        loadInventory();
     }
-    function importDataLocal(event) {
-        const file = event.target.files[0]; if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                inventoryData = JSON.parse(e.target.result);
-                renderInventory(inventoryData);
-                alert('Vista Previa Cargada. Presiona "Subir Info" para guardar en nube.');
-                document.getElementById('btnCloudSync').style.display = 'flex';
-            } catch (err) { alert('Error archivo.'); }
-        }; reader.readAsText(file); event.target.value = '';
+
+    async function deleteCar(id) {
+        if(confirm('¿Borrar?')) {
+            await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: id }) });
+            loadInventory();
+        }
     }
-    async function pushToCloud() {
-        if(!confirm("⚠️ ¿Reemplazar toda la nube con estos datos?")) return;
-        loader.style.width = "70%";
-        try {
-            await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "bulk_replace", inventory: inventoryData }) });
-            alert("✅ Listo."); document.getElementById('btnCloudSync').style.display = 'none'; loadInventory();
-        } catch (error) { alert("Error."); } finally { loader.style.width = "0%"; }
-    }
-    async function deleteCar(id) { if(confirm('¿Borrar?')) { await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "delete", id: id }) }); loadInventory(); } }
+
     function filterInventory() {
         const term = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = inventoryData.filter(c => String(c.patente).toLowerCase().includes(term) || String(c.marca).toLowerCase().includes(term) || String(c.idExterno).includes(term) || String(c.modelo).toLowerCase().includes(term));
+        const filtered = inventoryData.filter(c => 
+            String(c.patente).toLowerCase().includes(term) || 
+            String(c.marca).toLowerCase().includes(term) || 
+            String(c.modelo).toLowerCase().includes(term)
+        );
         renderInventory(filtered);
     }
-    function openModal() { modal.style.display='flex'; document.getElementById('modalTitle').innerText="Nuevo"; document.getElementById('btnSubmit').innerText="Guardar"; carForm.reset(); document.getElementById('editId').value=""; }
+
+    function formatInput(i) { let v = i.value.replace(/\D/g, ""); i.value = v ? Number(v).toLocaleString("de-DE") : ""; }
+    function formatPhoneInput(i) { let v = i.value.replace(/\D/g,""); if(v) i.value = v; }
+    function openModal() { modal.style.display='flex'; document.getElementById('modalTitle').innerText="Nuevo"; carForm.reset(); document.getElementById('editId').value=""; }
     function closeModal() { modal.style.display='none'; carForm.reset(); }
+    function copyText(text) { navigator.clipboard.writeText(text).then(() => alert(`Copiado: ${text}`)); }
+
+    function exportData() {
+        const blob = new Blob([JSON.stringify(inventoryData, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+        a.download = `backup.json`; a.click();
+    }
+    function importDataLocal(event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            inventoryData = JSON.parse(e.target.result);
+            renderInventory(inventoryData);
+            document.getElementById('btnCloudSync').style.display = 'flex';
+        };
+        reader.readAsText(file);
+    }
+    async function pushToCloud() {
+        if(!confirm("¿Sincronizar?")) return;
+        await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify({ action: "bulk_replace", inventory: inventoryData }) });
+        loadInventory();
+    }
 
     document.addEventListener('DOMContentLoaded', loadInventory);
 </script>
-
 </body>
 </html>
