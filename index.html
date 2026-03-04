@@ -23,7 +23,6 @@
         .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
         .search-container { margin-bottom: 1rem; }
         #searchInput { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); outline: none; box-sizing: border-box; }
-        #searchInput:focus { border-color: var(--primary); ring: 2px solid #e0e7ff; }
 
         /* GRID RESPONSIVO */
         .inventory-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
@@ -31,7 +30,7 @@
         /* TARJETA */
         .card-item { background: white; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; transition: transform 0.2s; position: relative; }
         
-        /* --- ESTADO VENDIDO (ROJO) --- */
+        /* --- ESTADO VENDIDO --- */
         .card-item.is-sold { background-color: #fff1f2; border-color: #fecdd3; opacity: 0.95; }
         .card-item.is-sold::after { 
             content: "VENDIDO"; position: absolute; top: 50%; left: 50%; 
@@ -42,39 +41,22 @@
         }
 
         .card-header { padding: 1rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; background: #fdfdfd; z-index: 1; }
-        .is-sold .card-header { background: #ffe4e6; border-bottom-color: #fecdd3; }
-        
         .card-title { font-weight: 800; font-size: 1.15rem; color: var(--dark); display: block; line-height: 1.2; }
         .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 4px; display: block; }
         
         .card-body { padding: 1rem; font-size: 0.9rem; flex: 1; z-index: 1; }
         .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; }
-        .info-row:last-child { border-bottom: none; }
         .info-label { color: var(--secondary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
         .info-val { font-weight: 600; text-align: right; color: var(--dark); }
 
-        /* FOOTER DE PRECIOS */
         .card-footer { background: #f8fafc; padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); z-index: 1; }
-        .is-sold .card-footer { background: #fff1f2; border-top-color: #fecdd3; }
-        
-        .price-box { display: flex; flex-direction: column; }
         .price-label { font-size: 0.7rem; color: var(--secondary); text-transform: uppercase; font-weight: bold; }
         .price-value { font-size: 1.4rem; font-weight: 900; color: var(--success); letter-spacing: -0.5px; }
-        
-        /* Precio tachado si vendido */
         .is-sold .price-value { text-decoration: line-through; color: var(--danger); font-size: 1.1rem; }
-        .is-sold .price-label::after { content: " (NO DISPONIBLE)"; color: var(--danger); }
 
-        /* ELEMENTOS EXTRA */
         .badge-patente { background: #0f172a; color: white; padding: 4px 8px; border-radius: 6px; font-family: monospace; font-weight: bold; font-size: 0.9rem; letter-spacing: 1px; }
-        .badge-incomplete { background: #fff7ed; color: #c2410c; padding: 2px 6px; border-radius: 4px; border: 1px solid #fdba74; font-size: 0.7rem; }
-        
         .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; border: 1px solid #bfdbfe; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; }
-        .id-badge:active { background: var(--primary); color: white; }
-
-        .ig-btn { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; }
-        .ig-btn:hover { background: #fce7f3; }
-
+        .ig-btn { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
         .obs-box { background: #fffbeb; color: #b45309; padding: 10px; margin-top: 10px; border-radius: 8px; font-size: 0.85rem; border-left: 4px solid #f59e0b; font-style: italic; line-height: 1.4; }
 
         .loading-bar { height: 4px; background: var(--primary); width: 0%; transition: width 0.3s; position: fixed; top: 0; left: 0; z-index: 200; }
@@ -86,45 +68,31 @@
 <div id="loadingBar" class="loading-bar"></div>
 
 <nav>
-    <div class="logo">
-        🚗 AutoGestión <span class="badge-visor">Visor</span>
-    </div>
-    <button class="btn-refresh" onclick="loadInventory()">
-        🔄 <span class="d-sm-inline">Actualizar</span>
-    </button>
+    <div class="logo">🚗 AutoGestión <span class="badge-visor">Visor</span></div>
+    <button class="btn-refresh" onclick="loadInventory()">🔄 Actualizar</button>
 </nav>
 
 <div class="main-content">
     <div class="search-container">
         <input type="text" id="searchInput" placeholder="🔍 Buscar patente, modelo, marca, ID..." onkeyup="filterInventory()">
     </div>
-
     <div style="text-align:center; padding: 5px; font-size:0.8rem; color:#64748b; margin-bottom:10px;" id="statusMsg"></div>
-
     <div id="inventoryCards" class="inventory-grid"></div>
 </div>
 
-<div class="watermark">Solo Lectura • Actualizado en tiempo real</div>
+<div class="watermark">Solo Lectura • CarlosPN Interactive®</div>
 
 <script>
-    // ==========================================
-    // ¡¡¡ PEGA LA MISMA URL DEL ADMIN AQUÍ !!!
-    // ==========================================
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBurGXfk92kPtrTVFDI7Ukec03FYhVOHcfdl7FN95C5uLT_BnU8ltzh_nPy9gUkDDbZg/exec"; 
-    // ==========================================
 
     const cardsContainer = document.getElementById('inventoryCards');
     const loader = document.getElementById('loadingBar');
     const statusMsg = document.getElementById('statusMsg');
     let inventoryData = []; 
 
-    // --- CARGAR DATOS (READ ONLY) ---
     async function loadInventory() {
-        if(GOOGLE_SCRIPT_URL.includes("AQUI_PEGA")) { alert("⚠️ Configura la URL"); return; }
-        
         loader.style.width = "70%";
         statusMsg.innerText = "Sincronizando...";
-        
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
             const data = await response.json();
@@ -132,11 +100,20 @@
             renderInventory(data);
             statusMsg.innerText = `${data.length} vehículos cargados.`;
         } catch (error) {
-            console.error(error);
             statusMsg.innerText = "❌ Error de conexión.";
-        } finally { 
-            loader.style.width = "0%"; 
-        }
+        } finally { loader.style.width = "0%"; }
+    }
+
+    // --- FUNCIÓN DE TELÉFONO (IGUAL AL ADMIN) ---
+    function formatChileanPhone(fono) {
+        if (!fono) return { link: '#', text: 'Sin fono' };
+        let clean = String(fono).replace(/\D/g, ''); 
+        if (!clean) return { link: '#', text: 'Sin fono' };
+
+        let link = clean;
+        if (clean.length === 9) link = '56' + clean;
+        
+        return { link: '+' + link, text: '📞 ' + fono };
     }
 
     function formatMoney(num) {
@@ -146,13 +123,11 @@
 
     function renderInventory(data) {
         cardsContainer.innerHTML = '';
-
         if (data.length === 0) {
-            cardsContainer.innerHTML = '<div style="text-align:center; padding:3rem; color:#aaa; grid-column: 1/-1;">No hay vehículos disponibles.</div>';
+            cardsContainer.innerHTML = '<div style="text-align:center; padding:3rem; color:#aaa; grid-column: 1/-1;">No hay vehículos.</div>';
             return;
         }
 
-        // Ordenar: Disponibles primero, luego vendidos, luego por ID
         data.sort((a, b) => {
             if (a.estado === "Vendido" && b.estado !== "Vendido") return 1;
             if (a.estado !== "Vendido" && b.estado === "Vendido") return -1;
@@ -160,58 +135,49 @@
         });
 
         data.forEach(car => {
-            // VERIFICAR SI ESTÁ VENDIDO
             const isSold = car.estado === "Vendido";
-
-            const idHtml = car.idExterno ? `<div class="id-badge" onclick="copyText('${car.idExterno}')">🆔 ${car.idExterno}</div>` : '';
-            const igHtml = car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Ver en Instagram</a>` : '';
-            const obsHtml = car.obs ? `<div class="obs-box">📝 ${car.obs}</div>` : '';
-            
-            // Teléfono limpio
-            const fonoRaw = car.fono ? String(car.fono).replace(/\D/g,'') : '';
-            const fonoLink = fonoRaw ? `<a href="tel:+${fonoRaw}" style="color:var(--primary);text-decoration:none;font-weight:bold;">📞 Contactar</a>` : '<span style="color:#ccc">-</span>';
+            const phone = formatChileanPhone(car.fono);
+            const fonoHtml = `<a href="tel:${phone.link}" style="color:var(--primary);text-decoration:none;font-weight:bold;">${phone.text}</a>`;
 
             const card = document.createElement('div');
-            // Aplicar clase .is-sold si está vendido
             card.className = `card-item ${isSold ? 'is-sold' : ''}`;
             
             card.innerHTML = `
                 <div class="card-header">
                     <div>
                         <span class="card-title">${car.marca} ${car.modelo}</span>
-                        <span class="card-subtitle">${car.anio} • ${car.combustible}</span>
-                        ${idHtml}
+                        <span class="card-subtitle">${car.anio} • ${car.color} • ${car.combustible}</span>
+                        ${car.idExterno ? `<div class="id-badge" onclick="copyText('${car.idExterno}')">🆔 ${car.idExterno}</div>` : ''}
                     </div>
                     <div>${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/P</span>'}</div>
                 </div>
                 <div class="card-body">
                     <div class="info-row"><span class="info-label">Kilometraje</span> <span class="info-val">${formatMoney(car.km)} km</span></div>
-                    <div class="info-row"><span class="info-label">Color</span> <span class="info-val">${car.color}</span></div>
                     <div class="info-row"><span class="info-label">Dueño</span> <span class="info-val">${car.dueno}</span></div>
-                    <div class="info-row"><span class="info-label">Contacto</span> <span class="info-val">${fonoLink}</span></div>
-                    ${obsHtml}
-                    <div style="margin-top:12px; display:flex; justify-content:flex-end;">${igHtml}</div>
+                    <div class="info-row"><span class="info-label">Contacto</span> <span class="info-val">${fonoHtml}</span></div>
+                    ${car.obs ? `<div class="obs-box">📝 ${car.obs}</div>` : ''}
+                    <div style="margin-top:12px; display:flex; justify-content:flex-end;">
+                        ${car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Ver en Instagram</a>` : ''}
+                    </div>
                 </div>
                 <div class="card-footer">
                     <div class="price-box">
                         <span class="price-label">Precio Venta</span>
                         <span class="price-value">$${formatMoney(car.pVenta)}</span>
                     </div>
-                    <!-- Sin botones de acción para el vendedor -->
                 </div>
             `;
             cardsContainer.appendChild(card);
         });
     }
 
-    function copyText(text) { navigator.clipboard.writeText(text).then(() => alert(`ID Copiado: ${text}`)); }
+    function copyText(text) { navigator.clipboard.writeText(text).then(() => alert(`Copiado: ${text}`)); }
     
     function filterInventory() {
         const term = document.getElementById('searchInput').value.toLowerCase();
         const filtered = inventoryData.filter(c => 
             String(c.patente).toLowerCase().includes(term) || 
             String(c.marca).toLowerCase().includes(term) || 
-            String(c.idExterno).includes(term) || 
             String(c.modelo).toLowerCase().includes(term)
         );
         renderInventory(filtered);
@@ -219,6 +185,5 @@
 
     document.addEventListener('DOMContentLoaded', loadInventory);
 </script>
-
 </body>
 </html>
