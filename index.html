@@ -3,71 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AutoGestión | Visor Ventas</title>
+    <title>Visor Ventas | AutoGestión</title>
     <style>
-        :root { --primary: #4f46e5; --success: #10b981; --dark: #1e293b; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b; }
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; color: var(--dark); }
+        :root { --primary: #4f46e5; --success: #10b981; --danger: #ef4444; --dark: #1e293b; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; color: var(--dark); padding-bottom: 50px; }
 
         /* NAV */
         nav { background: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 5px; }
-        .badge-visor { background: #e0e7ff; color: var(--primary); font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .logo { font-size: 1.2rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        .badge-visor { background: #e0e7ff; color: var(--primary); font-size: 0.65rem; padding: 3px 8px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid #c7d2fe; }
 
         .btn-refresh { 
-            padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); 
-            background: white; cursor: pointer; font-size: 0.85rem; font-weight: bold;
-            color: var(--dark); display: flex; align-items: center; gap: 5px; transition: all 0.2s;
+            padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border); 
+            background: white; cursor: pointer; font-size: 0.9rem; font-weight: bold;
+            color: var(--dark); display: flex; align-items: center; gap: 6px; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-        .btn-refresh:active { transform: scale(0.95); background: #f1f5f9; }
+        .btn-refresh:active { transform: scale(0.96); background: #f1f5f9; }
 
         .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
-        .search-container { margin-bottom: 1rem; display: flex; gap: 10px; }
-        #searchInput { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); outline: none; }
-        #searchInput:focus { border-color: var(--primary); }
+        .search-container { margin-bottom: 1rem; }
+        #searchInput { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); outline: none; box-sizing: border-box; }
+        #searchInput:focus { border-color: var(--primary); ring: 2px solid #e0e7ff; }
 
-        /* TARJETAS (MÓVIL) */
-        .inventory-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+        /* GRID RESPONSIVO */
+        .inventory-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
         
-        .card-item { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); display: flex; flex-direction: column; transition: transform 0.2s; }
-        .card-item:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        /* TARJETA */
+        .card-item { background: white; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; transition: transform 0.2s; position: relative; }
         
-        .card-header { padding: 1rem; border-bottom: 1px solid var(--light); display: flex; justify-content: space-between; align-items: start; background: #fdfdfd; }
-        .card-title { font-weight: 800; font-size: 1.1rem; color: var(--dark); display: block; }
-        .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 2px; display: block; }
-        
-        .card-body { padding: 1rem; font-size: 0.9rem; flex: 1; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; }
-        .info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
-        .info-label { color: var(--secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
-        .info-val { font-weight: 500; text-align: right; }
-
-        .card-footer { background: #f8fafc; padding: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); }
-        
-        .price-box { display: flex; flex-direction: column; gap: 2px; }
-        .price-cost { font-size: 0.75rem; color: var(--secondary); }
-        .price-sale { font-size: 1.2rem; font-weight: 800; color: var(--success); }
-
-        /* ELEMENTOS VISUALES */
-        .badge-patente { background: #1e293b; color: white; padding: 3px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; font-size: 0.85rem; }
-        .badge-incomplete { background: #fff7ed; color: #c2410c; padding: 2px 6px; border-radius: 4px; border: 1px solid #fdba74; font-size: 0.7rem; }
-        .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; border: 1px solid #bfdbfe; cursor: pointer; display: inline-block; margin-top: 4px; }
-        .id-badge:active { background: var(--primary); color: white; }
-        .ig-btn { background: #fae8ff; color: #86198f; border: 1px solid #f0abfc; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
-        .obs-box { background: #fffbeb; color: #92400e; padding: 8px; margin-top: 8px; border-radius: 6px; font-size: 0.8rem; border-left: 3px solid #f59e0b; font-style: italic; }
-
-        /* TABLA (Escritorio) */
-        .desktop-table-container { display: none; }
-        @media (min-width: 900px) {
-            .inventory-grid { display: none; }
-            .desktop-table-container { display: block; background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
-            table { width: 100%; border-collapse: collapse; }
-            th { background: #f1f5f9; padding: 1rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; color: var(--secondary); }
-            td { padding: 1rem; border-top: 1px solid var(--border); vertical-align: top; }
-            tr:hover { background-color: #f8fafc; }
+        /* --- ESTADO VENDIDO (ROJO) --- */
+        .card-item.is-sold { background-color: #fff1f2; border-color: #fecdd3; opacity: 0.95; }
+        .card-item.is-sold::after { 
+            content: "VENDIDO"; position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%) rotate(-25deg); 
+            font-size: 3.5rem; font-weight: 900; color: rgba(225, 29, 72, 0.15); 
+            pointer-events: none; border: 6px solid rgba(225, 29, 72, 0.15); 
+            padding: 10px; border-radius: 12px; z-index: 0;
         }
 
+        .card-header { padding: 1rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; background: #fdfdfd; z-index: 1; }
+        .is-sold .card-header { background: #ffe4e6; border-bottom-color: #fecdd3; }
+        
+        .card-title { font-weight: 800; font-size: 1.15rem; color: var(--dark); display: block; line-height: 1.2; }
+        .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 4px; display: block; }
+        
+        .card-body { padding: 1rem; font-size: 0.9rem; flex: 1; z-index: 1; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; }
+        .info-row:last-child { border-bottom: none; }
+        .info-label { color: var(--secondary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .info-val { font-weight: 600; text-align: right; color: var(--dark); }
+
+        /* FOOTER DE PRECIOS */
+        .card-footer { background: #f8fafc; padding: 1rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); z-index: 1; }
+        .is-sold .card-footer { background: #fff1f2; border-top-color: #fecdd3; }
+        
+        .price-box { display: flex; flex-direction: column; }
+        .price-label { font-size: 0.7rem; color: var(--secondary); text-transform: uppercase; font-weight: bold; }
+        .price-value { font-size: 1.4rem; font-weight: 900; color: var(--success); letter-spacing: -0.5px; }
+        
+        /* Precio tachado si vendido */
+        .is-sold .price-value { text-decoration: line-through; color: var(--danger); font-size: 1.1rem; }
+        .is-sold .price-label::after { content: " (NO DISPONIBLE)"; color: var(--danger); }
+
+        /* ELEMENTOS EXTRA */
+        .badge-patente { background: #0f172a; color: white; padding: 4px 8px; border-radius: 6px; font-family: monospace; font-weight: bold; font-size: 0.9rem; letter-spacing: 1px; }
+        .badge-incomplete { background: #fff7ed; color: #c2410c; padding: 2px 6px; border-radius: 4px; border: 1px solid #fdba74; font-size: 0.7rem; }
+        
+        .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; border: 1px solid #bfdbfe; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; }
+        .id-badge:active { background: var(--primary); color: white; }
+
+        .ig-btn { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; transition: all 0.2s; }
+        .ig-btn:hover { background: #fce7f3; }
+
+        .obs-box { background: #fffbeb; color: #b45309; padding: 10px; margin-top: 10px; border-radius: 8px; font-size: 0.85rem; border-left: 4px solid #f59e0b; font-style: italic; line-height: 1.4; }
+
         .loading-bar { height: 4px; background: var(--primary); width: 0%; transition: width 0.3s; position: fixed; top: 0; left: 0; z-index: 200; }
-        .watermark { position: fixed; bottom: 10px; right: 10px; font-size: 0.8rem; color: rgba(0, 0, 0, 0.2); pointer-events: none; z-index: 1000; }
+        .watermark { position: fixed; bottom: 10px; right: 10px; font-size: 0.75rem; color: rgba(0, 0, 0, 0.3); pointer-events: none; z-index: 1000; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -76,41 +87,24 @@
 
 <nav>
     <div class="logo">
-        🚗 AutoGestión <span class="badge-visor">Visor Ventas</span>
+        🚗 AutoGestión <span class="badge-visor">Visor</span>
     </div>
     <button class="btn-refresh" onclick="loadInventory()">
-        🔄 <span style="display:none" class="d-sm-inline">Actualizar</span>
+        🔄 <span class="d-sm-inline">Actualizar</span>
     </button>
 </nav>
 
 <div class="main-content">
     <div class="search-container">
-        <input type="text" id="searchInput" placeholder="🔍 Buscar por patente, modelo, ID..." onkeyup="filterInventory()">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar patente, modelo, marca, ID..." onkeyup="filterInventory()">
     </div>
 
-    <div style="text-align:center; padding: 10px; font-size:0.8rem; color:#64748b" id="statusMsg">Cargando inventario...</div>
+    <div style="text-align:center; padding: 5px; font-size:0.8rem; color:#64748b; margin-bottom:10px;" id="statusMsg"></div>
 
-    <!-- VISTA TARJETAS (Móvil) -->
     <div id="inventoryCards" class="inventory-grid"></div>
-
-    <!-- VISTA TABLA (PC) -->
-    <div class="desktop-table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th>Vehículo / ID</th>
-                    <th>Detalles</th>
-                    <th>Dueño</th>
-                    <th>Precios</th>
-                    <th>Obs / Redes</th>
-                </tr>
-            </thead>
-            <tbody id="inventoryTableBody"></tbody>
-        </table>
-    </div>
 </div>
 
-<div class="watermark">Modo Lectura • AutoGestión Pro</div>
+<div class="watermark">Solo Lectura • Actualizado en tiempo real</div>
 
 <script>
     // ==========================================
@@ -120,27 +114,26 @@
     // ==========================================
 
     const cardsContainer = document.getElementById('inventoryCards');
-    const tableBody = document.getElementById('inventoryTableBody');
     const loader = document.getElementById('loadingBar');
     const statusMsg = document.getElementById('statusMsg');
     let inventoryData = []; 
 
-    // --- CARGAR DATOS (SOLO LECTURA) ---
+    // --- CARGAR DATOS (READ ONLY) ---
     async function loadInventory() {
-        if(GOOGLE_SCRIPT_URL.includes("AQUI_PEGA")) { alert("⚠️ Falta configurar URL"); return; }
+        if(GOOGLE_SCRIPT_URL.includes("AQUI_PEGA")) { alert("⚠️ Configura la URL"); return; }
         
-        loader.style.width = "60%";
-        statusMsg.innerText = "🔄 Sincronizando con la nube...";
+        loader.style.width = "70%";
+        statusMsg.innerText = "Sincronizando...";
         
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
             const data = await response.json();
             inventoryData = data; 
             renderInventory(data);
-            statusMsg.innerText = `✅ Actualizado: ${data.length} vehículos encontrados.`;
+            statusMsg.innerText = `${data.length} vehículos cargados.`;
         } catch (error) {
             console.error(error);
-            statusMsg.innerText = "❌ Error de conexión. Intenta recargar.";
+            statusMsg.innerText = "❌ Error de conexión.";
         } finally { 
             loader.style.width = "0%"; 
         }
@@ -153,27 +146,35 @@
 
     function renderInventory(data) {
         cardsContainer.innerHTML = '';
-        tableBody.innerHTML = '';
 
         if (data.length === 0) {
             cardsContainer.innerHTML = '<div style="text-align:center; padding:3rem; color:#aaa; grid-column: 1/-1;">No hay vehículos disponibles.</div>';
             return;
         }
 
-        // Ordenar: más nuevo primero
-        data.sort((a, b) => b.id - a.id).forEach(car => {
-            // Preparar datos visuales
+        // Ordenar: Disponibles primero, luego vendidos, luego por ID
+        data.sort((a, b) => {
+            if (a.estado === "Vendido" && b.estado !== "Vendido") return 1;
+            if (a.estado !== "Vendido" && b.estado === "Vendido") return -1;
+            return b.id - a.id;
+        });
+
+        data.forEach(car => {
+            // VERIFICAR SI ESTÁ VENDIDO
+            const isSold = car.estado === "Vendido";
+
             const idHtml = car.idExterno ? `<div class="id-badge" onclick="copyText('${car.idExterno}')">🆔 ${car.idExterno}</div>` : '';
-            const igHtml = car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Ver Instagram</a>` : '';
+            const igHtml = car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Ver en Instagram</a>` : '';
             const obsHtml = car.obs ? `<div class="obs-box">📝 ${car.obs}</div>` : '';
             
             // Teléfono limpio
             const fonoRaw = car.fono ? String(car.fono).replace(/\D/g,'') : '';
-            const fonoLink = fonoRaw ? `<a href="tel:+${fonoRaw}" style="color:var(--primary);text-decoration:none">📞 Contactar</a>` : '-';
+            const fonoLink = fonoRaw ? `<a href="tel:+${fonoRaw}" style="color:var(--primary);text-decoration:none;font-weight:bold;">📞 Contactar</a>` : '<span style="color:#ccc">-</span>';
 
-            // 1. TARJETA (Móvil)
             const card = document.createElement('div');
-            card.className = 'card-item';
+            // Aplicar clase .is-sold si está vendido
+            card.className = `card-item ${isSold ? 'is-sold' : ''}`;
+            
             card.innerHTML = `
                 <div class="card-header">
                     <div>
@@ -189,38 +190,17 @@
                     <div class="info-row"><span class="info-label">Dueño</span> <span class="info-val">${car.dueno}</span></div>
                     <div class="info-row"><span class="info-label">Contacto</span> <span class="info-val">${fonoLink}</span></div>
                     ${obsHtml}
-                    <div style="margin-top:8px; text-align:right">${igHtml}</div>
+                    <div style="margin-top:12px; display:flex; justify-content:flex-end;">${igHtml}</div>
                 </div>
                 <div class="card-footer">
                     <div class="price-box">
-                        <span class="price-cost">Costo: $${formatMoney(car.pDueno)}</span>
-                        <span class="price-sale">Venta: $${formatMoney(car.pVenta)}</span>
+                        <span class="price-label">Precio Venta</span>
+                        <span class="price-value">$${formatMoney(car.pVenta)}</span>
                     </div>
-                    <!-- Sin botones de acción -->
+                    <!-- Sin botones de acción para el vendedor -->
                 </div>
             `;
             cardsContainer.appendChild(card);
-
-            // 2. TABLA (Escritorio)
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    ${car.patente ? `<span class="badge-patente">${car.patente}</span>` : '<span class="badge-incomplete">S/P</span>'}<br>
-                    <strong>${car.marca} ${car.modelo}</strong><br>
-                    ${idHtml}
-                </td>
-                <td>${car.anio}<br><small>${car.color}</small><br><small>${formatMoney(car.km)} km</small></td>
-                <td>${car.dueno}<br>${fonoLink}</td>
-                <td>
-                    <div style="color:var(--secondary); font-size:0.8rem">C: $${formatMoney(car.pDueno)}</div>
-                    <div style="color:var(--success); font-weight:bold; font-size:1.1rem">$${formatMoney(car.pVenta)}</div>
-                </td>
-                <td style="font-size:0.85rem">
-                    ${igHtml}
-                    ${car.obs ? `<div style="margin-top:5px; font-style:italic; color:#666">${car.obs}</div>` : ''}
-                </td>
-            `;
-            tableBody.appendChild(tr);
         });
     }
 
@@ -237,7 +217,6 @@
         renderInventory(filtered);
     }
 
-    // Iniciar carga al abrir
     document.addEventListener('DOMContentLoaded', loadInventory);
 </script>
 
