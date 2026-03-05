@@ -4,53 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://script.google.com https://script.googleusercontent.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;">
-    <title>Catálogo de Vehículos | Stock Disponible</title>
+    <title>Catálogo en Tiempo Real | Mi Automotora</title>
     <style>
-        :root { --primary: #4f46e5; --success: #10b981; --warning: #f59e0b; --dark: #1e293b; --light: #f1f5f9; --border: #e2e8f0; }
+        :root { --primary: #4f46e5; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --dark: #1e293b; --light: #f1f5f9; --border: #e2e8f0; --whatsapp: #25d366; }
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; color: var(--dark); padding-bottom: 40px; }
 
-        /* HEADER */
-        header { background: white; padding: 1.5rem 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .logo-client { font-size: 1.5rem; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
-        .subtitle-client { font-size: 0.9rem; color: #64748b; margin-top: 5px; }
+        header { background: white; padding: 1.2rem 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .logo-client { font-size: 1.4rem; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
+        .live-indicator { display: inline-flex; align-items: center; gap: 5px; font-size: 0.7rem; color: var(--success); font-weight: bold; text-transform: uppercase; margin-top: 4px; }
+        .dot { height: 8px; width: 8px; background-color: var(--success); border-radius: 50%; display: inline-block; animation: blink 1.5s infinite; }
+        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
         .main-content { max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem; }
-        
-        /* BUSCADOR ESTILIZADO */
-        .search-box { position: relative; margin-bottom: 2rem; }
-        #searchInput { width: 100%; padding: 16px 20px; border-radius: 15px; border: 2px solid white; font-size: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); outline: none; transition: 0.3s; box-sizing: border-box; }
-        #searchInput:focus { border-color: var(--primary); }
+        #searchInput { width: 100%; padding: 16px 20px; border-radius: 15px; border: 2px solid white; font-size: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); outline: none; margin-bottom: 2rem; box-sizing: border-box; }
 
-        /* GRID DE CATÁLOGO */
         .catalog-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
         
-        /* TARJETA CLIENTE */
-        .car-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: transform 0.3s; border: 1px solid var(--border); }
-        .car-card:hover { transform: translateY(-5px); }
+        .car-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); display: flex; flex-direction: column; transition: 0.3s; border: 1px solid var(--border); position: relative; }
+        
+        /* SELLOS CRUZADOS */
+        .status-overlay {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg);
+            padding: 10px 20px; font-size: 1.8rem; font-weight: 900; z-index: 20;
+            border: 6px double; pointer-events: none; text-transform: uppercase; background: rgba(255, 255, 255, 0.9);
+        }
+        .overlay-reserved { color: var(--warning); border-color: var(--warning); }
 
-        .card-img-placeholder { width: 100%; height: 180px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 3rem; }
+        .card-img-placeholder { width: 100%; height: 160px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-size: 3rem; }
 
         .card-info { padding: 1.2rem; flex-grow: 1; }
-        .car-title { font-size: 1.25rem; font-weight: 800; color: var(--dark); margin: 0; }
-        .car-specs { font-size: 0.85rem; color: #64748b; margin-top: 4px; display: block; font-weight: 500; }
+        .car-title { font-size: 1.2rem; font-weight: 800; color: var(--dark); margin: 0; }
         
-        .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .spec-item { background: #f8fafc; padding: 8px 12px; border-radius: 10px; font-size: 0.8rem; border: 1px solid #f1f5f9; }
-        .spec-label { display: block; color: #94a3b8; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
-        .spec-value { font-weight: 700; color: var(--dark); }
+        .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+        .spec-item { background: #f8fafc; padding: 6px 10px; border-radius: 10px; border: 1px solid #f1f5f9; }
+        .spec-label { display: block; color: #94a3b8; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; }
+        .spec-value { font-weight: 700; color: var(--dark); font-size: 0.8rem; }
 
-        .price-tag { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
-        .price-amount { font-size: 1.5rem; font-weight: 900; color: var(--primary); }
+        .price-tag { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; text-align: left; }
+        .price-amount { font-size: 1.5rem; font-weight: 900; color: var(--primary); display: block; margin-bottom: 12px; }
         
-        /* BOTÓN WHATSAPP */
-        .btn-whatsapp { background: #25d366; color: white; text-decoration: none; padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn-whatsapp:hover { background: #128c7e; }
+        /* CONTENEDOR DE BOTONES */
+        .actions-container { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-client { text-decoration: none; padding: 10px; border-radius: 10px; font-weight: 700; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 5px; color: white; transition: 0.2s; }
+        .btn-wa { background: var(--whatsapp); }
+        .btn-call { background: var(--dark); }
+        .btn-wa:hover { background: #1eb954; }
+        .btn-call:hover { background: #000; }
 
-        /* ESTADO RESERVADO CLIENTE */
-        .is-reserved { opacity: 0.85; filter: grayscale(0.5); }
-        .reserved-badge { background: var(--warning); color: white; padding: 6px 12px; border-radius: 8px; font-weight: 900; font-size: 0.75rem; position: absolute; top: 15px; right: 15px; }
-
-        .loading-bar { height: 4px; background: var(--primary); width: 0%; position: fixed; top: 0; left: 0; z-index: 200; transition: 0.3s; }
+        .is-dimmed { opacity: 0.7; filter: grayscale(0.4); }
+        .loading-bar { height: 3px; background: var(--primary); width: 0%; position: fixed; top: 0; left: 0; z-index: 200; transition: 0.2s; }
     </style>
 </head>
 <body>
@@ -59,88 +61,78 @@
 
 <header>
     <div class="logo-client">🚗 MI AUTOMOTORA</div>
-    <div class="subtitle-client">Encuentra tu próximo vehículo hoy</div>
+    <div class="live-indicator"><span class="dot"></span> Actualizado hace un momento</div>
 </header>
 
 <div class="main-content">
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="¿Qué auto buscas? (Marca, modelo...)" onkeyup="filterInventory()">
-    </div>
+    <input type="text" id="searchInput" placeholder="Ej: Suzuki Swift, Toyota, 2022..." onkeyup="filterInventory()">
     <div id="catalogGrid" class="catalog-grid"></div>
 </div>
 
 <script>
-    // REEMPLAZA CON TU URL DE GOOGLE SCRIPT
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBurGXfk92kPtrTVFDI7Ukec03FYhVOHcfdl7FN95C5uLT_BnU8ltzh_nPy9gUkDDbZg/exec";
-    const WHATSAPP_NUMBER = "56949657510"; // Reemplaza con tu número para recibir mensajes
+    const BUSINESS_PHONE = "56949657510"; // Tu número para WhatsApp y Llamadas
 
     let inventoryData = [];
+    let lastDataHash = "";
 
-    async function loadCatalog() {
-        document.getElementById('loadingBar').style.width = "70%";
+    async function loadCatalog(isAutoRefresh = false) {
+        if (!isAutoRefresh) document.getElementById('loadingBar').style.width = "50%";
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
             const data = await response.json();
-            // Filtrar para que el cliente NO vea los vendidos
-            inventoryData = data.filter(car => car.estado !== "Vendido");
-            renderCatalog(inventoryData);
-        } catch (error) {
-            console.error("Error catálogo:", error);
-        } finally {
-            document.getElementById('loadingBar').style.width = "0%";
-        }
+            
+            // Filtramos vendidos
+            const freshData = data.filter(car => car.estado !== "Vendido" && car.id);
+            const currentHash = JSON.stringify(freshData);
+            
+            if (currentHash !== lastDataHash) {
+                inventoryData = freshData;
+                lastDataHash = currentHash;
+                renderCatalog(inventoryData);
+            }
+        } catch (error) { console.error("Sync error:", error); }
+        finally { document.getElementById('loadingBar').style.width = "0%"; }
     }
 
     function renderCatalog(data) {
         const grid = document.getElementById('catalogGrid');
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        
         grid.innerHTML = '';
-
-        if (data.length === 0) {
-            grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:4rem; color:#94a3b8;">Lo sentimos, no encontramos vehículos con esos criterios.</div>';
-            return;
-        }
-
+        
         data.forEach(car => {
+            if (searchTerm && !String(car.marca + car.modelo + car.anio).toLowerCase().includes(searchTerm)) return;
+
             const isReserved = car.estado === "Reservado";
-            const priceFormatted = Number(car.pVenta || 0).toLocaleString('de-DE');
-            const kmFormatted = Number(car.km || 0).toLocaleString('de-DE');
+            const price = Number(car.pVenta || 0).toLocaleString('de-DE');
+            const km = Number(car.km || 0).toLocaleString('de-DE');
             
-            // Mensaje personalizado para WhatsApp
-            const waMessage = encodeURIComponent(`Hola, estoy interesado en el ${car.marca} ${car.modelo} año ${car.anio} que vi en su catálogo online.`);
-            const waLink = `https://wa.me/${WHATSAPP_NUMBER}?text=${waMessage}`;
+            const waLink = `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent('Hola, me interesa el ' + car.marca + ' ' + car.modelo + ' año ' + car.anio)}`;
+            const callLink = `tel:+${BUSINESS_PHONE}`;
 
             const card = document.createElement('div');
-            card.className = `car-card ${isReserved ? 'is-reserved' : ''}`;
+            card.className = `car-card ${isReserved ? 'is-dimmed' : ''}`;
+            
             card.innerHTML = `
-                <div style="position:relative">
-                    <div class="card-img-placeholder">🚗</div>
-                    ${isReserved ? '<div class="reserved-badge">RESERVADO</div>' : ''}
-                </div>
+                ${isReserved ? '<div class="status-overlay overlay-reserved">RESERVADO</div>' : ''}
+                <div class="card-img-placeholder">🚗</div>
                 <div class="card-info">
                     <h3 class="car-title">${car.marca} ${car.modelo}</h3>
-                    <span class="car-specs">${car.anio} • ${car.combustible}</span>
-                    
                     <div class="spec-grid">
-                        <div class="spec-item">
-                            <span class="spec-label">Kilometraje</span>
-                            <span class="spec-value">${kmFormatted} km</span>
-                        </div>
-                        <div class="spec-item">
-                            <span class="spec-label">Color</span>
-                            <span class="spec-value">${car.color || 'N/A'}</span>
-                        </div>
+                        <div class="spec-item"><span class="spec-label">AÑO</span><span class="spec-value">${car.anio}</span></div>
+                        <div class="spec-item"><span class="spec-label">KM</span><span class="spec-value">${km}</span></div>
+                        <div class="spec-item"><span class="spec-label">MOTOR</span><span class="spec-value">${car.combustible || 'S/C'}</span></div>
+                        <div class="spec-item"><span class="spec-label">COLOR</span><span class="spec-value">${car.color || 'N/A'}</span></div>
                     </div>
-
                     <div class="price-tag">
-                        <div class="price-box">
-                            <span class="price-label" style="display:block; font-size:0.7rem; color:#94a3b8; font-weight:bold;">PRECIO</span>
-                            <span class="price-amount">$${priceFormatted}</span>
-                        </div>
+                        <span class="price-amount">$${price}</span>
                         ${!isReserved ? `
-                            <a href="${waLink}" target="_blank" class="btn-whatsapp">
-                                <span>WhatsApp</span>
-                            </a>
-                        ` : '<span style="color:var(--warning); font-weight:bold; font-size:0.8rem;">En Proceso...</span>'}
+                            <div class="actions-container">
+                                <a href="${waLink}" target="_blank" class="btn-client btn-wa">💬 WhatsApp</a>
+                                <a href="${callLink}" class="btn-client btn-call">📞 Llamar</a>
+                            </div>
+                        ` : '<div style="text-align:center; color:var(--warning); font-weight:bold; padding:10px; background:#fff; border-radius:10px; border:1px solid var(--warning);">NO DISPONIBLE POR AHORA</div>'}
                     </div>
                 </div>
             `;
@@ -148,17 +140,11 @@
         });
     }
 
-    function filterInventory() {
-        const t = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = inventoryData.filter(c => 
-            String(c.marca).toLowerCase().includes(t) || 
-            String(c.modelo).toLowerCase().includes(t) ||
-            String(c.anio).includes(t)
-        );
-        renderCatalog(filtered);
-    }
+    function filterInventory() { renderCatalog(inventoryData); }
 
-    document.addEventListener('DOMContentLoaded', loadCatalog);
+    // Sincronización cada 5 segundos para tiempo real
+    setInterval(() => loadCatalog(true), 5000);
+    document.addEventListener('DOMContentLoaded', () => loadCatalog());
 </script>
 </body>
 </html>
