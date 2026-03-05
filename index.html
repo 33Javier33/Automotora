@@ -4,111 +4,155 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://script.google.com https://script.googleusercontent.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;">
-    <title>Visor de Ventas | Pro</title>
+    <title>Visor Interno | AutoGestión Pro</title>
     <style>
-        :root { --primary: #4f46e5; --success: #10b981; --warning: #f59e0b; --dark: #1e293b; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b; }
-        body { font-family: 'Inter', system-ui, sans-serif; background: var(--light); margin: 0; padding-bottom: 50px; color: var(--dark); }
+        :root { --primary: #4f46e5; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --dark: #1e293b; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; padding-bottom: 50px; color: var(--dark); }
+
         nav { background: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
         .logo { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
+        .badge-visor { background: #e0e7ff; color: var(--primary); font-size: 0.7rem; padding: 4px 10px; border-radius: 12px; font-weight: bold; text-transform: uppercase; }
+
         .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
-        #searchInput { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 1rem; box-sizing: border-box; }
+        #searchInput { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); outline: none; box-sizing: border-box; margin-bottom: 1rem; }
+
         .inventory-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-        .card-item { background: white; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); position: relative; }
-        .card-item.is-sold::after { content: "VENDIDO"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); font-size: 3rem; font-weight: 900; color: rgba(225, 29, 72, 0.1); border: 6px solid rgba(225, 29, 72, 0.1); padding: 10px; border-radius: 12px; }
-        .card-item.is-reserved { background-color: #fffbeb; border-color: #fef3c7; }
-        .card-item.is-reserved::after { content: "RESERVADO"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-20deg); font-size: 2.5rem; font-weight: 900; color: rgba(245, 158, 11, 0.15); border: 5px solid rgba(245, 158, 11, 0.15); padding: 10px; border-radius: 12px; }
+        
+        .card-item { background: white; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; position: relative; }
+        
+        .status-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); font-size: 2.5rem; font-weight: 900; z-index: 20; border: 6px solid; padding: 10px; border-radius: 12px; pointer-events: none; text-transform: uppercase; background: rgba(255, 255, 255, 0.9); }
+        .overlay-reserved { color: rgba(245, 158, 11, 0.4); border-color: rgba(245, 158, 11, 0.4); }
+        .overlay-sold { color: rgba(225, 29, 72, 0.3); border-color: rgba(225, 29, 72, 0.3); }
+
         .card-header { padding: 1rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; background: #fdfdfd; }
-        .card-title { font-weight: 800; font-size: 1.15rem; color: var(--dark); }
-        .card-body { padding: 1rem; font-size: 0.9rem; }
+        .card-title { font-weight: 800; font-size: 1.15rem; color: var(--dark); line-height: 1.2; }
+        .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 4px; display: block; }
+        
+        .card-body { padding: 1rem; font-size: 0.9rem; flex: 1; }
         .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; }
         .info-label { color: var(--secondary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .info-val { font-weight: 600; text-align: right; color: var(--dark); }
+
+        /* Estilo para el link de llamada */
+        .call-link { color: var(--primary); text-decoration: none; font-weight: 800; border-bottom: 1px solid var(--primary); }
+
         .card-footer { background: #f8fafc; padding: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-end; }
-        .price-value { font-size: 1.4rem; font-weight: 900; color: var(--success); }
-        .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; border: 1px solid #bfdbfe; cursor: pointer; margin-top: 6px; display: inline-flex; }
-        .ig-btn { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; text-decoration: none; font-weight: bold; }
-        .loading-bar { height: 4px; background: var(--primary); width: 0%; transition: width 0.3s; position: fixed; top: 0; left: 0; z-index: 200; }
-        .toast-msg { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--primary); color: white; padding: 8px 16px; border-radius: 30px; font-size: 0.8rem; z-index: 3000; }
+        .price-box { display: flex; flex-direction: column; }
+        .price-label { font-size: 0.7rem; color: var(--secondary); font-weight: bold; text-transform: uppercase; }
+        .price-value { font-size: 1.4rem; font-weight: 900; color: var(--success); line-height: 1; }
+        .cost-value { font-size: 0.85rem; color: var(--secondary); margin-bottom: 4px; font-weight: bold; }
+
+        .badge-patente { background: #0f172a; color: white; padding: 4px 8px; border-radius: 6px; font-family: monospace; font-weight: bold; font-size: 0.9rem; }
+        .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; border: 1px solid #bfdbfe; margin-top: 6px; display: inline-flex; cursor: pointer; }
+        .ig-btn { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
+        .obs-box { background: #fffbeb; color: #b45309; padding: 10px; margin-top: 10px; border-radius: 8px; font-size: 0.85rem; border-left: 4px solid #f59e0b; font-style: italic; }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--dark); color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; z-index: 3000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
 
-<div id="loadingBar" class="loading-bar"></div>
-<nav><div class="logo">🚗 AutoGestión Visor</div><button onclick="loadInventory()" style="cursor:pointer; background:none; border:none; font-weight:bold;">🔄 Actualizar</button></nav>
+<nav>
+    <div class="logo">🚗 AutoGestión <span class="badge-visor">Vendedor</span></div>
+    <div id="syncStatus" style="font-size: 0.65rem; color: var(--success); font-weight: bold;">● VIVO</div>
+</nav>
 
 <div class="main-content">
-    <input type="text" id="searchInput" placeholder="🔍 Buscar patente, marca, modelo, ID..." onkeyup="filterInventory()">
+    <input type="text" id="searchInput" placeholder="🔍 Buscar por patente, marca, modelo, dueño..." onkeyup="filterInventory()">
     <div id="inventoryCards" class="inventory-grid"></div>
 </div>
 
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBurGXfk92kPtrTVFDI7Ukec03FYhVOHcfdl7FN95C5uLT_BnU8ltzh_nPy9gUkDDbZg/exec"; 
-
-    function formatChileanPhone(f) {
-        if(!f) return { link: '#', text: 'S/F' };
-        let c = String(f).replace(/\D/g,'');
-        let link = c.length === 9 ? '56' + c : c;
-        return { link: '+' + link, text: '📞 ' + f };
-    }
-
-    function copyToClipboard(text) {
-        if (!text) return;
-        navigator.clipboard.writeText(text).then(() => {
-            const toast = document.createElement('div');
-            toast.className = 'toast-msg';
-            toast.innerText = `Copiado: ${text}`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 1500);
-        });
-    }
+    let inventoryData = []; 
 
     async function loadInventory() {
-        document.getElementById('loadingBar').style.width = "70%";
-        const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
-        const data = await response.json();
-        renderInventory(data);
-        document.getElementById('loadingBar').style.width = "0%";
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
+            inventoryData = await response.json();
+            renderInventory(inventoryData);
+        } catch (error) { console.error("Error cargando:", error); }
     }
 
     function renderInventory(data) {
         const container = document.getElementById('inventoryCards');
+        const search = document.getElementById('searchInput').value.toLowerCase();
         container.innerHTML = '';
+
         data.forEach(car => {
+            if (search && !String(car.marca + car.modelo + car.patente + car.dueno).toLowerCase().includes(search)) return;
+
             const isSold = car.estado === "Vendido";
             const isReserved = car.estado === "Reservado";
-            const phone = formatChileanPhone(car.fono);
+            
+            // Lógica para el teléfono inteligente (+56 si empieza con 9)
+            let rawPhone = String(car.fono || "").trim();
+            let displayPhone = rawPhone;
+            let callLink = rawPhone;
+
+            if (rawPhone.startsWith('9') && rawPhone.length === 9) {
+                callLink = "+56" + rawPhone;
+            } else if (!rawPhone.startsWith('+') && rawPhone.length > 0) {
+                // Por si acaso no tiene el +, pero no es el formato de 9 dígitos
+                callLink = rawPhone; 
+            }
+
             const card = document.createElement('div');
-            card.className = `card-item ${isSold ? 'is-sold' : (isReserved ? 'is-reserved' : '')}`;
+            card.className = 'card-item';
+            
             card.innerHTML = `
+                ${isReserved ? '<div class="status-overlay overlay-reserved">RESERVADO</div>' : ''}
+                ${isSold ? '<div class="status-overlay overlay-sold">VENDIDO</div>' : ''}
                 <div class="card-header">
                     <div>
                         <span class="card-title">${car.marca} ${car.modelo}</span>
-                        <span style="font-size:0.85rem; color:var(--secondary); display:block;">${car.anio} • ${car.color} • ${car.combustible}</span>
-                        ${car.idExterno ? `<span class="id-badge" onclick="copyToClipboard('${car.idExterno}')">🆔 ${car.idExterno}</span>` : ''}
+                        <span class="card-subtitle">${car.anio} • ${car.color} • ${car.combustible}</span>
+                        ${car.idExterno ? `<span class="id-badge" onclick="copyId('${car.idExterno}')">🆔 ${car.idExterno}</span>` : ''}
                     </div>
-                    <span style="background:#000; color:#fff; padding:4px 8px; border-radius:6px; font-family:monospace; font-weight:bold;">${car.patente || 'S/P'}</span>
+                    <div><span class="badge-patente">${car.patente || 'S/P'}</span></div>
                 </div>
                 <div class="card-body">
-                    <div class="info-row"><span class="info-label">KM</span><span>${Number(car.km || 0).toLocaleString('de-DE')} km</span></div>
-                    <div class="info-row"><span class="info-label">Dueño</span><span>${car.dueno}</span></div>
-                    <div class="info-row"><span class="info-label">Contacto</span><a href="tel:${phone.link}" style="color:var(--primary);text-decoration:none;font-weight:bold;">${phone.text}</a></div>
-                    ${car.obs ? `<div style="background:#fffbeb; padding:10px; border-radius:8px; font-size:0.85rem; border-left:4px solid var(--warning); font-style:italic;">📝 ${car.obs}</div>` : ''}
+                    <div class="info-row"><span class="info-label">Kilometraje</span><span class="info-val">${Number(car.km).toLocaleString('de-DE')} km</span></div>
+                    <div class="info-row"><span class="info-label">Dueño Original</span><span class="info-val">${car.dueno}</span></div>
+                    <div class="info-row">
+                        <span class="info-label">Teléfono</span>
+                        <span class="info-val">
+                            ${rawPhone ? `<a href="tel:${callLink}" class="call-link">📞 ${displayPhone}</a>` : 'N/A'}
+                        </span>
+                    </div>
+                    ${car.obs ? `<div class="obs-box">📝 ${car.obs}</div>` : ''}
+                    <div style="margin-top:12px; display:flex; justify-content:flex-end;">
+                        ${car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Instagram</a>` : ''}
+                    </div>
                 </div>
                 <div class="card-footer">
-                    <div><span style="font-size:0.7rem; color:var(--secondary); font-weight:bold; display:block;">VENTA</span><span class="price-value">$${Number(car.pVenta || 0).toLocaleString('de-DE')}</span></div>
-                    <div style="text-align:right;"><span style="font-size:0.7rem; color:var(--secondary); font-weight:bold; display:block;">COSTO</span><span style="font-weight:bold;">$${Number(car.pDueno || 0).toLocaleString('de-DE')}</span></div>
+                    <div class="price-box">
+                        <span class="price-label">Precio de Venta</span>
+                        <span class="price-value">$${Number(car.pVenta).toLocaleString('de-DE')}</span>
+                    </div>
+                    <div class="price-box" style="text-align: right;">
+                        <span class="price-label">Costo Dueño</span>
+                        <span class="cost-value">$${Number(car.pDueno).toLocaleString('de-DE')}</span>
+                    </div>
                 </div>
             `;
             container.appendChild(card);
         });
     }
 
-    function filterInventory() {
-        const t = document.getElementById('searchInput').value.toLowerCase();
-        loadInventory().then(() => {
-            // Filtrado local tras carga (o puedes filtrar el array globalmente)
+    function copyId(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.innerText = `ID ${text} copiado`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 1500);
         });
     }
 
+    function filterInventory() { renderInventory(inventoryData); }
+
+    setInterval(loadInventory, 5000);
     document.addEventListener('DOMContentLoaded', loadInventory);
 </script>
 </body>
