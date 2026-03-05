@@ -7,7 +7,7 @@
     <title>AutoGestión Pro | Admin Full Secure</title>
     <style>
         :root { --primary: #4f46e5; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --dark: #1e293b; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b; }
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; padding-bottom: 110px; color: var(--dark); }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; padding-bottom: 110px; color: var(--dark); scroll-behavior: smooth; }
 
         /* --- LOGIN --- */
         #loginOverlay { position: fixed; inset: 0; background: var(--dark); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
@@ -28,12 +28,21 @@
         /* FOOTER / MARCA DE AGUA */
         .footer-watermark { text-align: center; padding: 20px 0; color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; pointer-events: none; user-select: none; }
 
+        /* BUSCADOR FLOTANTE */
+        #floatingSearchContainer { position: fixed; top: -100px; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1500; transition: 0.4s; display: flex; gap: 10px; box-sizing: border-box; }
+        #floatingSearchContainer.active { top: 0; }
+        #floatingSearchInput { flex: 1; padding: 12px; border-radius: 8px; border: 2px solid var(--primary); outline: none; font-size: 1rem; }
+
         .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
         .search-container { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 10px; }
         #searchInput { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         .stock-counter { font-size: 0.9rem; color: var(--secondary); font-weight: 700; padding-left: 5px; }
 
-        .btn-add-mobile { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); font-size: 24px; display: flex; align-items: center; justify-content: center; z-index: 99; cursor: pointer; }
+        /* BOTONES FLOTANTES */
+        .floating-controls { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 1000; align-items: center; }
+        .btn-add-mobile { width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-search-float { width: 50px; height: 50px; border-radius: 50%; background: var(--success); color: white; border: none; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-go-up { width: 45px; height: 45px; border-radius: 50%; background: var(--dark); color: white; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 20px; cursor: pointer; display: none; align-items: center; justify-content: center; transition: 0.3s; opacity: 0.9; }
 
         .inventory-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
         .card-item { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; display: flex; flex-direction: column; }
@@ -53,7 +62,7 @@
         .price-sale { font-size: 1.1rem; font-weight: 800; color: var(--success); }
 
         .badge-patente { background: #1e293b; color: white; padding: 3px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; font-size: 0.85rem; }
-        .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; border: 1px solid #bfdbfe; margin-top: 4px; display: inline-block; cursor: pointer; transition: 0.2s; }
+        .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; border: 1px solid #bfdbfe; margin-top: 4px; display: inline-block; cursor: pointer; transition: 0.2s; }
         .ig-btn { background: #fae8ff; color: #86198f; border: 1px solid #f0abfc; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
         .obs-box { background: #fffbeb; color: #92400e; padding: 8px; margin-top: 8px; border-radius: 6px; font-size: 0.8rem; border-left: 3px solid #f59e0b; font-style: italic; }
 
@@ -78,6 +87,11 @@
 
 <div id="loadingBar" class="loading-bar"></div>
 
+<div id="floatingSearchContainer">
+    <input type="text" id="floatingSearchInput" placeholder="Buscando coincidencia rápida..." onkeyup="syncSearch(this.value)">
+    <button onclick="toggleFloatingSearch()" style="background:var(--danger); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-weight:bold;">X</button>
+</div>
+
 <div id="loginOverlay">
     <div class="login-card">
         <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
@@ -94,7 +108,7 @@
 </div>
 
 <div id="adminContent" style="display:none;">
-    <nav>
+    <nav id="topNav">
         <div class="logo">🚗 AutoGestión<span style="color:var(--dark)">Pro</span></div>
         <div style="display:flex; gap:10px;">
             <button class="btn-backup" onclick="exportData()">📥 Backup</button>
@@ -105,13 +119,17 @@
     <div class="main-content">
         <div class="search-container">
             <div id="stockCounter" class="stock-counter">Cargando unidades...</div>
-            <input type="text" id="searchInput" placeholder="🔍 Buscar por patente, dueño, marca, modelo, color o dueño..." onkeyup="filterInventory()">
+            <input type="text" id="searchInput" placeholder="🔍 Buscar por patente, dueño, marca, modelo o color..." onkeyup="syncSearch(this.value)">
         </div>
         <div id="inventoryCards" class="inventory-grid"></div>
-        
         <div class="footer-watermark">CarlosPN Interactive®</div>
     </div>
-    <button class="btn-add-mobile" onclick="openModal()">+</button>
+    
+    <div class="floating-controls">
+        <button id="btnGoUp" class="btn-go-up" onclick="scrollToTop()">↑</button>
+        <button class="btn-search-float" onclick="toggleFloatingSearch()">🔍</button>
+        <button class="btn-add-mobile" onclick="openModal()">+</button>
+    </div>
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
@@ -154,16 +172,45 @@
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBurGXfk92kPtrTVFDI7Ukec03FYhVOHcfdl7FN95C5uLT_BnU8ltzh_nPy9gUkDDbZg/exec"; 
     let inventoryData = [];
 
+    // --- LOGICA BUSCADOR FLOTANTE ---
+    function toggleFloatingSearch() {
+        const container = document.getElementById('floatingSearchContainer');
+        const input = document.getElementById('floatingSearchInput');
+        container.classList.toggle('active');
+        if (container.classList.contains('active')) {
+            input.focus();
+        }
+    }
+
+    // Sincroniza ambos buscadores (el normal y el flotante)
+    function syncSearch(val) {
+        document.getElementById('searchInput').value = val;
+        document.getElementById('floatingSearchInput').value = val;
+        filterInventory();
+    }
+
+    // --- LOGICA FLECHA SUBIR ---
+    window.onscroll = function() {
+        const btn = document.getElementById("btnGoUp");
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+            btn.style.display = "flex";
+        } else {
+            btn.style.display = "none";
+        }
+    };
+
+    function scrollToTop() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     // --- OJITO PASSWORD ---
     function togglePassView() {
         const input = document.getElementById('userPass');
         const eye = document.querySelector('.toggle-password');
         if (input.type === "password") {
-            input.type = "text";
-            eye.innerText = "🔒";
+            input.type = "text"; eye.innerText = "🔒";
         } else {
-            input.type = "password";
-            eye.innerText = "👁️";
+            input.type = "password"; eye.innerText = "👁️";
         }
     }
 
@@ -184,9 +231,7 @@
             const res = await fetch(GOOGLE_SCRIPT_URL, { method:"POST", body: JSON.stringify({action:"auth", rut, pass}) });
             const data = await res.json();
             if(data.success) {
-                loginAttempts = 0;
-                localStorage.setItem('sessionRut', rut);
-                localStorage.setItem('sessionKey', pass);
+                loginAttempts = 0; localStorage.setItem('sessionRut', rut); localStorage.setItem('sessionKey', pass);
                 location.reload(); 
             } else {
                 loginAttempts++;
@@ -293,7 +338,7 @@
     }
 
     function filterInventory() {
-        const term = document.getElementById('searchInput').value.toLowerCase();
+        const term = (document.getElementById('searchInput').value || "").toLowerCase();
         const filtered = inventoryData.filter(car => {
             return (
                 String(car.marca).toLowerCase().includes(term) ||
