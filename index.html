@@ -4,74 +4,147 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://script.google.com https://script.googleusercontent.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;">
-    <title>Visor Interno | AutoGestión Pro</title>
+    <title>Visor Vendedor | AutoGestión Pro</title>
     <style>
-        :root { --primary: #4f46e5; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --dark: #1e293b; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b; }
-        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; padding-bottom: 50px; color: var(--dark); }
+        :root { 
+            --primary: #4f46e5; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+            --warning: #f59e0b; 
+            --dark: #0f172a; 
+            --light: #f8fafc; 
+            --border: #e2e8f0; 
+            --secondary: #64748b;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; padding-bottom: 110px; color: var(--dark); scroll-behavior: smooth; }
 
+        /* NAV */
         nav { background: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
         .logo { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
         .badge-visor { background: #e0e7ff; color: var(--primary); font-size: 0.7rem; padding: 4px 10px; border-radius: 12px; font-weight: bold; text-transform: uppercase; }
+        .sync-dot { height: 8px; width: 8px; background-color: var(--success); border-radius: 50%; display: inline-block; margin-right: 5px; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* BUSCADOR FLOTANTE */
+        #floatingSearchContainer { position: fixed; top: -100px; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1500; transition: 0.4s; display: flex; gap: 10px; box-sizing: border-box; }
+        #floatingSearchContainer.active { top: 0; }
+        #floatingSearchInput { flex: 1; padding: 12px; border-radius: 8px; border: 2px solid var(--primary); outline: none; font-size: 1rem; }
 
         .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
-        #searchInput { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); outline: none; box-sizing: border-box; margin-bottom: 1rem; }
+        .search-container { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 10px; }
+        #searchInput { width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--border); font-size: 1rem; outline: none; box-sizing: border-box; }
+        #searchInput:focus { border-color: var(--primary); }
 
-        .inventory-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
+        /* TARJETAS */
+        .inventory-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
         
-        .card-item { background: white; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; position: relative; }
-        
-        .status-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); font-size: 2.5rem; font-weight: 900; z-index: 20; border: 6px solid; padding: 10px; border-radius: 12px; pointer-events: none; text-transform: uppercase; background: rgba(255, 255, 255, 0.9); }
+        .card-item { 
+            background: white; 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            overflow: hidden; 
+            box-shadow: var(--card-shadow); 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        /* Sellos de Estado */
+        .status-overlay { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%) rotate(-20deg); font-size: 2.5rem; font-weight: 900; z-index: 20; border: 6px solid; padding: 10px; border-radius: 12px; pointer-events: none; text-transform: uppercase; background: rgba(255, 255, 255, 0.9); }
         .overlay-reserved { color: rgba(245, 158, 11, 0.4); border-color: rgba(245, 158, 11, 0.4); }
         .overlay-sold { color: rgba(225, 29, 72, 0.3); border-color: rgba(225, 29, 72, 0.3); }
 
-        .card-header { padding: 1rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: flex-start; background: #fdfdfd; }
-        .card-title { font-weight: 800; font-size: 1.15rem; color: var(--dark); line-height: 1.2; }
-        .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 4px; display: block; }
+        .card-header { padding: 1.25rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: start; background: #fff; }
+        .card-title { font-weight: 800; font-size: 1.25rem; color: var(--dark); letter-spacing: -0.5px; }
+        .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 4px; display: block; font-weight: 500; }
         
-        .card-body { padding: 1rem; font-size: 0.9rem; flex: 1; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; }
-        .info-label { color: var(--secondary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .card-body { padding: 1.25rem; font-size: 0.9rem; flex: 1; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; }
+        .info-label { color: var(--secondary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .info-val { font-weight: 600; text-align: right; color: var(--dark); }
 
-        /* Estilo para el link de llamada */
-        .call-link { color: var(--primary); text-decoration: none; font-weight: 800; border-bottom: 1px solid var(--primary); }
+        .call-link { color: var(--primary); text-decoration: none; font-weight: 700; border-bottom: 2px solid rgba(79, 70, 229, 0.2); }
 
-        .card-footer { background: #f8fafc; padding: 1rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-end; }
-        .price-box { display: flex; flex-direction: column; }
-        .price-label { font-size: 0.7rem; color: var(--secondary); font-weight: bold; text-transform: uppercase; }
-        .price-value { font-size: 1.4rem; font-weight: 900; color: var(--success); line-height: 1; }
-        .cost-value { font-size: 0.85rem; color: var(--secondary); margin-bottom: 4px; font-weight: bold; }
+        .card-footer { background: #f8fafc; padding: 1.25rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: flex-end; }
+        .price-label { font-size: 0.75rem; color: var(--secondary); font-weight: 700; text-transform: uppercase; }
+        .price-value { font-size: 1.4rem; font-weight: 900; color: var(--success); line-height: 1; letter-spacing: -0.5px; }
+        .cost-value { font-size: 0.85rem; color: var(--secondary); font-weight: bold; margin-bottom: 4px; }
 
-        .badge-patente { background: #0f172a; color: white; padding: 4px 8px; border-radius: 6px; font-family: monospace; font-weight: bold; font-size: 0.9rem; }
-        .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; border: 1px solid #bfdbfe; margin-top: 6px; display: inline-flex; cursor: pointer; }
-        .ig-btn { background: #fdf2f8; color: #db2777; border: 1px solid #fbcfe8; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
-        .obs-box { background: #fffbeb; color: #b45309; padding: 10px; margin-top: 10px; border-radius: 8px; font-size: 0.85rem; border-left: 4px solid #f59e0b; font-style: italic; }
+        .badge-patente { background: var(--dark); color: white; padding: 5px 10px; border-radius: 8px; font-family: monospace; font-weight: 700; font-size: 0.9rem; }
+        .id-badge { background: #eef2ff; color: var(--primary); padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; border: 1px solid #c7d2fe; margin-top: 8px; display: inline-flex; cursor: pointer; }
+        
+        .ig-btn { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); color: white; padding: 6px 14px; border-radius: 12px; font-size: 0.75rem; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; }
+        .obs-box { background: #fffbeb; color: #92400e; padding: 12px; margin-top: 12px; border-radius: 10px; font-size: 0.8rem; border-left: 4px solid var(--warning); font-style: italic; }
 
-        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: var(--dark); color: white; padding: 8px 16px; border-radius: 20px; font-size: 0.8rem; z-index: 3000; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        /* CONTROLES FLOTANTES */
+        .floating-controls { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 1000; align-items: center; }
+        .btn-search-float { width: 55px; height: 55px; border-radius: 50%; background: var(--success); color: white; border: none; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-go-up { width: 45px; height: 45px; border-radius: 50%; background: var(--dark); color: white; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 20px; cursor: pointer; display: none; align-items: center; justify-content: center; opacity: 0.9; }
+
+        .footer-watermark { text-align: center; padding: 30px 0; color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; pointer-events: none; user-select: none; }
+        .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--dark); color: white; padding: 10px 20px; border-radius: 50px; font-size: 0.8rem; z-index: 3000; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
 
+<div id="floatingSearchContainer">
+    <input type="text" id="floatingSearchInput" placeholder="¿Qué vehículo buscas?" onkeyup="syncSearch(this.value)">
+    <button onclick="toggleFloatingSearch()" style="background:var(--danger); color:white; border:none; padding:10px 15px; border-radius:10px; cursor:pointer; font-weight:bold;">X</button>
+</div>
+
 <nav>
     <div class="logo">🚗 AutoGestión <span class="badge-visor">Vendedor</span></div>
-    <div id="syncStatus" style="font-size: 0.65rem; color: var(--success); font-weight: bold;">● VIVO</div>
+    <div style="display: flex; align-items: center;"><span class="sync-dot"></span> <span style="font-size: 0.65rem; font-weight: 800; color: var(--success);">SISTEMA ACTIVO</span></div>
 </nav>
 
 <div class="main-content">
-    <input type="text" id="searchInput" placeholder="🔍 Buscar por patente, marca, modelo, dueño..." onkeyup="filterInventory()">
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar patente, marca, modelo, dueño o color..." onkeyup="filterInventory()">
+    </div>
     <div id="inventoryCards" class="inventory-grid"></div>
+    <div class="footer-watermark">CarlosPN Interactive®</div>
+</div>
+
+<div class="floating-controls">
+    <button id="btnGoUp" class="btn-go-up" onclick="scrollToTop()">↑</button>
+    <button class="btn-search-float" onclick="toggleFloatingSearch()">🔍</button>
 </div>
 
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBurGXfk92kPtrTVFDI7Ukec03FYhVOHcfdl7FN95C5uLT_BnU8ltzh_nPy9gUkDDbZg/exec"; 
+    const APP_KEY = "CPN_INTERACTIVE_2026_SECURE"; 
     let inventoryData = []; 
 
+    // --- NAVEGACIÓN Y BÚSQUEDA ---
+    function toggleFloatingSearch() {
+        const container = document.getElementById('floatingSearchContainer');
+        const input = document.getElementById('floatingSearchInput');
+        container.classList.toggle('active');
+        if (container.classList.contains('active')) input.focus();
+    }
+
+    function syncSearch(val) {
+        document.getElementById('searchInput').value = val;
+        document.getElementById('floatingSearchInput').value = val;
+        filterInventory();
+    }
+
+    window.onscroll = function() {
+        const btn = document.getElementById("btnGoUp");
+        btn.style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "flex" : "none";
+    };
+
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    // --- CARGA DE DATOS ---
     async function loadInventory() {
         try {
-            const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
+            const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=read&key=${APP_KEY}`);
             inventoryData = await response.json();
             renderInventory(inventoryData);
-        } catch (error) { console.error("Error cargando:", error); }
+        } catch (error) { console.error("Error:", error); }
     }
 
     function renderInventory(data) {
@@ -80,26 +153,19 @@
         container.innerHTML = '';
 
         data.forEach(car => {
-            if (search && !String(car.marca + car.modelo + car.patente + car.dueno).toLowerCase().includes(search)) return;
+            const searchable = `${car.marca} ${car.modelo} ${car.patente} ${car.dueno} ${car.color}`.toLowerCase();
+            if (search && !searchable.includes(search)) return;
 
             const isSold = car.estado === "Vendido";
             const isReserved = car.estado === "Reservado";
             
-            // Lógica para el teléfono inteligente (+56 si empieza con 9)
+            // Telefonía Chile (+56)
             let rawPhone = String(car.fono || "").trim();
-            let displayPhone = rawPhone;
             let callLink = rawPhone;
-
-            if (rawPhone.startsWith('9') && rawPhone.length === 9) {
-                callLink = "+56" + rawPhone;
-            } else if (!rawPhone.startsWith('+') && rawPhone.length > 0) {
-                // Por si acaso no tiene el +, pero no es el formato de 9 dígitos
-                callLink = rawPhone; 
-            }
+            if (rawPhone.startsWith('9') && rawPhone.length === 9) callLink = "+56" + rawPhone;
 
             const card = document.createElement('div');
             card.className = 'card-item';
-            
             card.innerHTML = `
                 ${isReserved ? '<div class="status-overlay overlay-reserved">RESERVADO</div>' : ''}
                 ${isSold ? '<div class="status-overlay overlay-sold">VENDIDO</div>' : ''}
@@ -114,20 +180,13 @@
                 <div class="card-body">
                     <div class="info-row"><span class="info-label">Kilometraje</span><span class="info-val">${Number(car.km).toLocaleString('de-DE')} km</span></div>
                     <div class="info-row"><span class="info-label">Dueño Original</span><span class="info-val">${car.dueno}</span></div>
-                    <div class="info-row">
-                        <span class="info-label">Teléfono</span>
-                        <span class="info-val">
-                            ${rawPhone ? `<a href="tel:${callLink}" class="call-link">📞 ${displayPhone}</a>` : 'N/A'}
-                        </span>
-                    </div>
-                    ${car.obs ? `<div class="obs-box">📝 ${car.obs}</div>` : ''}
-                    <div style="margin-top:12px; display:flex; justify-content:flex-end;">
-                        ${car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Instagram</a>` : ''}
-                    </div>
+                    <div class="info-row"><span class="info-label">Teléfono</span><span class="info-val">${rawPhone ? `<a href="tel:${callLink}" class="call-link">📞 ${rawPhone}</a>` : 'N/A'}</span></div>
+                    ${car.obs ? `<div class="obs-box">${car.obs}</div>` : ''}
+                    <div style="text-align: right;">${car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">Instagram</a>` : ''}</div>
                 </div>
                 <div class="card-footer">
                     <div class="price-box">
-                        <span class="price-label">Precio de Venta</span>
+                        <span class="price-label">Precio Venta</span>
                         <span class="price-value">$${Number(car.pVenta).toLocaleString('de-DE')}</span>
                     </div>
                     <div class="price-box" style="text-align: right;">
