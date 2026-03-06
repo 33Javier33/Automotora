@@ -6,12 +6,23 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://script.google.com https://script.googleusercontent.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;">
     <title>AutoGestión Pro | Admin Full Secure</title>
     <style>
-        :root { --primary: #4f46e5; --success: #10b981; --danger: #ef4444; --warning: #f59e0b; --dark: #1e293b; --light: #f8fafc; --border: #e2e8f0; --secondary: #64748b; }
+        :root { 
+            --primary: #4f46e5; 
+            --success: #10b981; 
+            --danger: #ef4444; 
+            --warning: #f59e0b; 
+            --dark: #0f172a; 
+            --light: #f8fafc; 
+            --border: #e2e8f0; 
+            --secondary: #64748b;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
         body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--light); margin: 0; padding-bottom: 110px; color: var(--dark); scroll-behavior: smooth; }
 
         /* --- LOGIN --- */
         #loginOverlay { position: fixed; inset: 0; background: var(--dark); z-index: 2000; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .login-card { background: white; padding: 2.5rem; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); text-align: center; }
+        .login-card { background: white; padding: 2.5rem; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); text-align: center; }
         .login-card h2 { color: var(--primary); margin-bottom: 1.5rem; font-weight: 800; }
         .password-container { position: relative; margin-bottom: 1rem; width: 100%; }
         .login-card input { padding: 14px; border: 1px solid var(--border); border-radius: 8px; width: 100%; box-sizing: border-box; font-size: 1rem; }
@@ -23,10 +34,11 @@
         /* NAV */
         nav { background: white; padding: 1rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }
         .logo { font-size: 1.2rem; font-weight: 800; color: var(--primary); }
-        .btn-backup { padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 0.75rem; font-weight: bold; color: var(--secondary); }
+        .btn-backup { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: white; cursor: pointer; font-size: 0.75rem; font-weight: bold; color: var(--secondary); transition: all 0.2s; }
+        .btn-backup:hover { background: var(--light); color: var(--dark); }
         
         /* FOOTER / MARCA DE AGUA */
-        .footer-watermark { text-align: center; padding: 20px 0; color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; pointer-events: none; user-select: none; }
+        .footer-watermark { text-align: center; padding: 30px 0; color: #94a3b8; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; pointer-events: none; user-select: none; }
 
         /* BUSCADOR FLOTANTE */
         #floatingSearchContainer { position: fixed; top: -100px; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1500; transition: 0.4s; display: flex; gap: 10px; box-sizing: border-box; }
@@ -34,53 +46,83 @@
         #floatingSearchInput { flex: 1; padding: 12px; border-radius: 8px; border: 2px solid var(--primary); outline: none; font-size: 1rem; }
 
         .main-content { max-width: 1200px; margin: 1rem auto; padding: 0 1rem; }
-        .search-container { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 10px; }
-        #searchInput { flex: 1; padding: 12px; border-radius: 10px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        .stock-counter { font-size: 0.9rem; color: var(--secondary); font-weight: 700; padding-left: 5px; }
+        .search-container { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 12px; }
+        #searchInput { flex: 1; padding: 15px; border-radius: 12px; border: 1px solid var(--border); font-size: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.02); outline: none; transition: border-color 0.2s; }
+        #searchInput:focus { border-color: var(--primary); }
+        .stock-counter { font-size: 0.85rem; color: var(--secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* BOTONES FLOTANTES */
         .floating-controls { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 1000; align-items: center; }
-        .btn-add-mobile { width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4); font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-add-mobile { width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4); font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
+        .btn-add-mobile:active { transform: scale(0.9); }
         .btn-search-float { width: 50px; height: 50px; border-radius: 50%; background: var(--success); color: white; border: none; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .btn-go-up { width: 45px; height: 45px; border-radius: 50%; background: var(--dark); color: white; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 20px; cursor: pointer; display: none; align-items: center; justify-content: center; transition: 0.3s; opacity: 0.9; }
 
-        .inventory-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
-        .card-item { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; display: flex; flex-direction: column; }
-        .card-item.is-sold::after { content: "VENDIDO"; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 3rem; font-weight: 900; color: rgba(239, 68, 68, 0.1); border: 4px solid rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 10px; z-index: 0; pointer-events: none; }
-        .card-item.is-reserved::after { content: "RESERVADO"; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 2.5rem; font-weight: 900; color: rgba(245, 158, 11, 0.15); border: 4px solid rgba(245, 158, 11, 0.15); padding: 10px; border-radius: 10px; z-index: 0; pointer-events: none; }
+        /* --- NUEVO ESTILO DE TARJETAS --- */
+        .inventory-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); }
+        
+        .card-item { 
+            background: white; 
+            border: 1px solid var(--border); 
+            border-radius: 20px; 
+            overflow: hidden; 
+            box-shadow: var(--card-shadow); 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card-item:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); }
 
-        .card-header { padding: 1rem; border-bottom: 1px solid var(--light); display: flex; justify-content: space-between; align-items: start; background: #fdfdfd; z-index: 1; }
-        .card-title { font-weight: 800; font-size: 1.1rem; color: var(--dark); display: block; }
-        .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 4px; display: block; }
-        .card-body { padding: 1rem; font-size: 0.9rem; z-index: 1; }
-        .info-row { display: flex; justify-content: space-between; margin-bottom: 8px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 8px; }
-        .info-label { color: var(--secondary); font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
-        .info-val { font-weight: 500; text-align: right; }
+        /* Sellos de Estado más profesionales */
+        .card-item.is-sold::after { content: "VENDIDO"; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 3.5rem; font-weight: 900; color: rgba(239, 68, 68, 0.15); border: 8px solid rgba(239, 68, 68, 0.15); padding: 10px 20px; border-radius: 15px; z-index: 0; pointer-events: none; }
+        .card-item.is-reserved::after { content: "RESERVADO"; position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); font-size: 2.8rem; font-weight: 900; color: rgba(245, 158, 11, 0.2); border: 8px solid rgba(245, 158, 11, 0.2); padding: 10px 20px; border-radius: 15px; z-index: 0; pointer-events: none; }
 
-        .card-footer { background: #f8fafc; padding: 0.8rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); z-index: 1; }
+        .card-header { padding: 1.25rem; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: start; background: #fff; z-index: 1; }
+        .card-title { font-weight: 800; font-size: 1.25rem; color: var(--dark); display: block; letter-spacing: -0.5px; }
+        .card-subtitle { font-size: 0.85rem; color: var(--secondary); margin-top: 4px; display: block; font-weight: 500; }
+        
+        .card-body { padding: 1.25rem; font-size: 0.9rem; z-index: 1; background: #fff; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; }
+        .info-label { color: var(--secondary); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-val { font-weight: 600; text-align: right; color: var(--dark); }
+
+        /* Estilo link de llamada */
+        .call-link { color: var(--primary); text-decoration: none; font-weight: 700; border-bottom: 2px solid rgba(79, 70, 229, 0.2); transition: all 0.2s; }
+        .call-link:hover { border-bottom-color: var(--primary); }
+
+        .card-footer { background: #f8fafc; padding: 1.25rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); z-index: 1; }
         .price-box { display: flex; flex-direction: column; gap: 2px; }
-        .price-sale { font-size: 1.1rem; font-weight: 800; color: var(--success); }
+        .price-sale { font-size: 1.4rem; font-weight: 900; color: var(--success); letter-spacing: -0.5px; }
+        .price-cost-label { font-size: 0.75rem; color: var(--secondary); font-weight: 700; text-transform: uppercase; }
 
-        .badge-patente { background: #1e293b; color: white; padding: 3px 8px; border-radius: 4px; font-family: monospace; font-weight: bold; font-size: 0.85rem; }
-        .id-badge { background: #eff6ff; color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; border: 1px solid #bfdbfe; margin-top: 4px; display: inline-block; cursor: pointer; transition: 0.2s; }
-        .ig-btn { background: #fae8ff; color: #86198f; border: 1px solid #f0abfc; padding: 2px 8px; border-radius: 12px; font-size: 0.75rem; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; }
-        .obs-box { background: #fffbeb; color: #92400e; padding: 8px; margin-top: 8px; border-radius: 6px; font-size: 0.8rem; border-left: 3px solid #f59e0b; font-style: italic; }
+        .badge-patente { background: var(--dark); color: white; padding: 5px 10px; border-radius: 8px; font-family: 'Monaco', monospace; font-weight: 700; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .id-badge { background: #eef2ff; color: var(--primary); padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; border: 1px solid #c7d2fe; margin-top: 8px; display: inline-block; cursor: pointer; transition: all 0.2s; }
+        .id-badge:hover { background: var(--primary); color: white; }
+        
+        .ig-btn { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); color: white; padding: 6px 14px; border-radius: 12px; font-size: 0.75rem; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .obs-box { background: #fffbeb; color: #92400e; padding: 12px; margin-top: 12px; border-radius: 10px; font-size: 0.8rem; border-left: 4px solid var(--warning); font-style: italic; line-height: 1.4; }
 
-        .btn-action { padding: 8px 10px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; font-size: 0.8rem; color: white; }
+        .actions-group { display: flex; gap: 8px; }
+        .btn-action { width: 38px; height: 38px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; color: white; display: flex; align-items: center; justify-content: center; transition: transform 0.1s, opacity 0.2s; }
+        .btn-action:active { transform: scale(0.9); }
         .btn-res { background: var(--warning); }
         .btn-sold { background: var(--success); }
-        .btn-edit { background: white; border: 1px solid var(--primary); color: var(--primary); }
+        .btn-edit { background: white; border: 1.5px solid var(--primary); color: var(--primary); }
         .btn-del { background: var(--danger); }
 
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-content { background: white; width: 95%; max-width: 750px; max-height: 90vh; overflow-y: auto; padding: 1.5rem; border-radius: 16px; }
-        .form-grid { display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem; }
+        /* MODAL */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+        .modal-content { background: white; width: 100%; max-width: 800px; max-height: 90vh; overflow-y: auto; padding: 2rem; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .form-grid { display: grid; grid-template-columns: 1fr; gap: 1.25rem; margin-top: 1.5rem; }
         @media (min-width: 600px) { .form-grid { grid-template-columns: 1fr 1fr 1fr; } .full-row { grid-column: span 3; } .half-row { grid-column: span 2; } }
-        input, textarea, select { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 15px; box-sizing: border-box; }
-        label { font-size: 0.75rem; font-weight: 700; color: var(--secondary); margin-bottom: 4px; display: block; text-transform: uppercase; }
+        input, textarea, select { width: 100%; padding: 12px 16px; border: 1px solid var(--border); border-radius: 12px; font-size: 16px; box-sizing: border-box; background: #fdfdfd; transition: all 0.2s; }
+        input:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); background: #fff; }
+        label { font-size: 0.75rem; font-weight: 800; color: var(--secondary); margin-bottom: 6px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
 
         .loading-bar { height: 4px; background: var(--primary); width: 0%; transition: width 0.3s; position: fixed; top: 0; left: 0; z-index: 2500; }
-        .toast-msg { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 10px 20px; border-radius: 20px; font-size: 0.8rem; z-index: 3000; box-shadow: 0 4px 12px rgba(0,0,0,0.2); pointer-events: none; }
+        .toast-msg { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--dark); color: white; padding: 12px 24px; border-radius: 50px; font-size: 0.85rem; font-weight: 600; z-index: 3000; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); pointer-events: none; }
     </style>
 </head>
 <body>
@@ -88,20 +130,21 @@
 <div id="loadingBar" class="loading-bar"></div>
 
 <div id="floatingSearchContainer">
-    <input type="text" id="floatingSearchInput" placeholder="Buscando coincidencia rápida..." onkeyup="syncSearch(this.value)">
-    <button onclick="toggleFloatingSearch()" style="background:var(--danger); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-weight:bold;">X</button>
+    <input type="text" id="floatingSearchInput" placeholder="¿Qué estás buscando hoy?" onkeyup="syncSearch(this.value)">
+    <button onclick="toggleFloatingSearch()" style="background:var(--danger); color:white; border:none; padding:10px 15px; border-radius:10px; cursor:pointer; font-weight:bold;">Cerrar</button>
 </div>
 
 <div id="loginOverlay">
     <div class="login-card">
-        <div style="font-size: 3rem; margin-bottom: 1rem;">🛡️</div>
-        <h2>Acceso Administrativo</h2>
-        <input type="text" id="userRut" placeholder="RUT">
-        <div class="password-container">
+        <div style="font-size: 3.5rem; margin-bottom: 1rem;">🛡️</div>
+        <h2>AutoGestión Pro</h2>
+        <p style="color:var(--secondary); margin-bottom: 1.5rem; font-weight: 500;">Ingresa tus credenciales de administrador</p>
+        <input type="text" id="userRut" placeholder="RUT (ej: 12345678)">
+        <div class="password-container" style="margin-top:1rem;">
             <input type="password" id="userPass" placeholder="Contraseña">
             <span class="toggle-password" onclick="togglePassView()">👁️</span>
         </div>
-        <button class="btn-login-auth" id="loginBtn" onclick="handleAuth()">Ingresar</button>
+        <button class="btn-login-auth" id="loginBtn" onclick="handleAuth()" style="margin-top:1rem;">Iniciar Sesión</button>
         <div id="loginMsg"></div>
         <div class="footer-watermark" style="margin-top:20px;">CarlosPN Interactive®</div>
     </div>
@@ -112,14 +155,14 @@
         <div class="logo">🚗 AutoGestión<span style="color:var(--dark)">Pro</span></div>
         <div style="display:flex; gap:10px;">
             <button class="btn-backup" onclick="exportData()">📥 Backup</button>
-            <button class="btn-backup" onclick="logout()">🚪 Salir</button>
+            <button class="btn-backup" onclick="logout()" style="color:var(--danger); border-color: rgba(239, 68, 68, 0.2);">🚪 Salir</button>
         </div>
     </nav>
 
     <div class="main-content">
         <div class="search-container">
-            <div id="stockCounter" class="stock-counter">Cargando unidades...</div>
-            <input type="text" id="searchInput" placeholder="🔍 Buscar por patente, dueño, marca, modelo o color..." onkeyup="syncSearch(this.value)">
+            <div id="stockCounter" class="stock-counter">Calculando stock...</div>
+            <input type="text" id="searchInput" placeholder="🔍 Buscar patente, dueño, marca, modelo o color..." onkeyup="syncSearch(this.value)">
         </div>
         <div id="inventoryCards" class="inventory-grid"></div>
         <div class="footer-watermark">CarlosPN Interactive®</div>
@@ -134,42 +177,44 @@
 
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h2 id="modalTitle" style="margin:0; font-size: 1.2rem;">Ficha Vehículo</h2>
-            <button onclick="closeModal()" style="background:#f1f5f9; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&times;</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid var(--light); padding-bottom: 1rem;">
+            <h2 id="modalTitle" style="margin:0; font-size: 1.5rem; font-weight: 800;">Ficha del Vehículo</h2>
+            <button onclick="closeModal()" style="background:#f1f5f9; border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; font-size: 1.5rem; font-weight: bold; color: var(--secondary);">&times;</button>
         </div>
         <form id="carForm">
             <input type="hidden" id="editId">
             <div class="form-grid">
-                <div><label>ID Externo</label><input type="text" id="idExterno"></div>
-                <div class="half-row"><label>Instagram URL</label><input type="url" id="instagram"></div>
-                <div><label>Patente</label><input type="text" id="patente"></div>
-                <div><label>Marca</label><input type="text" id="marca"></div>
-                <div><label>Modelo</label><input type="text" id="modelo"></div>
-                <div><label>Año</label><input type="text" id="anio"></div>
-                <div><label>Color</label><input type="text" id="color"></div>
+                <div><label>ID Externo</label><input type="text" id="idExterno" placeholder="Ej: SKU-001"></div>
+                <div class="half-row"><label>Instagram URL</label><input type="url" id="instagram" placeholder="https://instagram.com/p/..."></div>
+                <div><label>Patente</label><input type="text" id="patente" placeholder="AAAA00"></div>
+                <div><label>Marca</label><input type="text" id="marca" placeholder="Ej: Toyota"></div>
+                <div><label>Modelo</label><input type="text" id="modelo" placeholder="Ej: Hilux"></div>
+                <div><label>Año</label><input type="text" id="anio" placeholder="Ej: 2024"></div>
+                <div><label>Color</label><input type="text" id="color" placeholder="Ej: Gris"></div>
                 <div>
                     <label>Combustible</label>
                     <select id="combustible">
                         <option value="Bencina">Bencina</option>
                         <option value="Diesel">Diesel</option>
                         <option value="Híbrido">Híbrido</option>
+                        <option value="Eléctrico">Eléctrico</option>
                     </select>
                 </div>
-                <div><label>Kilometraje</label><input type="text" id="km" oninput="formatInput(this)"></div>
-                <div><label>Nombre Dueño</label><input type="text" id="dueno"></div>
+                <div><label>Kilometraje</label><input type="text" id="km" oninput="formatInput(this)" placeholder="0"></div>
+                <div><label>Nombre Dueño</label><input type="text" id="dueno" placeholder="Nombre completo"></div>
                 <div><label>Teléfono</label><input type="tel" id="fono" placeholder="9XXXXXXXX"></div>
-                <div><label>Costo Dueño ($)</label><input type="text" id="pDueno" oninput="formatInput(this)"></div>
-                <div><label>Precio Venta ($)</label><input type="text" id="pVenta" oninput="formatInput(this)"></div>
-                <div class="full-row"><label>Observaciones</label><textarea id="obs" rows="2"></textarea></div>
+                <div><label>Costo Dueño ($)</label><input type="text" id="pDueno" oninput="formatInput(this)" placeholder="0"></div>
+                <div><label>Precio Venta ($)</label><input type="text" id="pVenta" oninput="formatInput(this)" placeholder="0"></div>
+                <div class="full-row"><label>Observaciones Internas</label><textarea id="obs" rows="3" placeholder="Detalles, fallas o notas..."></textarea></div>
             </div>
-            <button type="submit" id="btnSubmit" class="btn-login-auth" style="margin-top:20px; width:100%;">Guardar Cambios</button>
+            <button type="submit" id="btnSubmit" class="btn-login-auth" style="margin-top:2rem; width:100%; height: 55px; font-size: 1.1rem; border-radius: 15px; box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);">Guardar Información</button>
         </form>
     </div>
 </div>
 
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBurGXfk92kPtrTVFDI7Ukec03FYhVOHcfdl7FN95C5uLT_BnU8ltzh_nPy9gUkDDbZg/exec"; 
+    const APP_KEY = "CPN_INTERACTIVE_2026_SECURE"; 
     let inventoryData = [];
 
     // --- LOGICA BUSCADOR FLOTANTE ---
@@ -177,12 +222,9 @@
         const container = document.getElementById('floatingSearchContainer');
         const input = document.getElementById('floatingSearchInput');
         container.classList.toggle('active');
-        if (container.classList.contains('active')) {
-            input.focus();
-        }
+        if (container.classList.contains('active')) input.focus();
     }
 
-    // Sincroniza ambos buscadores (el normal y el flotante)
     function syncSearch(val) {
         document.getElementById('searchInput').value = val;
         document.getElementById('floatingSearchInput').value = val;
@@ -192,68 +234,58 @@
     // --- LOGICA FLECHA SUBIR ---
     window.onscroll = function() {
         const btn = document.getElementById("btnGoUp");
-        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-            btn.style.display = "flex";
-        } else {
-            btn.style.display = "none";
-        }
+        btn.style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "flex" : "none";
     };
 
-    function scrollToTop() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
-    // --- OJITO PASSWORD ---
     function togglePassView() {
         const input = document.getElementById('userPass');
         const eye = document.querySelector('.toggle-password');
-        if (input.type === "password") {
-            input.type = "text"; eye.innerText = "🔒";
-        } else {
-            input.type = "password"; eye.innerText = "👁️";
-        }
+        input.type = input.type === "password" ? "text" : "password";
+        eye.innerText = input.type === "password" ? "👁️" : "🔒";
     }
 
     // --- RATE LIMITER ---
     let loginAttempts = 0;
-    const MAX_ATTEMPTS = 3;
-    const LOCK_TIME = 30;
-
     async function handleAuth() {
         const rut = document.getElementById('userRut').value.trim();
         const pass = document.getElementById('userPass').value.trim();
         const btn = document.getElementById('loginBtn');
         const msg = document.getElementById('loginMsg');
-        if(!rut || !pass) return alert("Faltan datos");
-        btn.disabled = true; btn.innerText = "⏳ Verificando...";
+        if(!rut || !pass) return;
+        btn.disabled = true; btn.innerText = "Verificando...";
         loader(true);
         try {
-            const res = await fetch(GOOGLE_SCRIPT_URL, { method:"POST", body: JSON.stringify({action:"auth", rut, pass}) });
+            const res = await fetch(GOOGLE_SCRIPT_URL, { 
+                method:"POST", 
+                body: JSON.stringify({action:"auth", rut, pass, key: APP_KEY}) 
+            });
             const data = await res.json();
             if(data.success) {
                 loginAttempts = 0; localStorage.setItem('sessionRut', rut); localStorage.setItem('sessionKey', pass);
                 location.reload(); 
             } else {
                 loginAttempts++;
-                if(loginAttempts >= MAX_ATTEMPTS) { startLockdown(); } 
+                if(loginAttempts >= 3) startLockdown(); 
                 else {
-                    msg.innerHTML = `<span style="color:var(--danger)">Error. Intentos: ${loginAttempts}/${MAX_ATTEMPTS}</span>`;
-                    btn.disabled = false; btn.innerText = "Ingresar";
+                    msg.innerHTML = `<span style="color:var(--danger); margin-top:10px; display:block;">Acceso fallido (${loginAttempts}/3)</span>`;
+                    btn.disabled = false; btn.innerText = "Iniciar Sesión";
                 }
             }
-        } catch(e) { alert("Error de conexión"); btn.disabled = false; btn.innerText = "Ingresar"; }
+        } catch(e) { alert("Error de red"); btn.disabled = false; btn.innerText = "Iniciar Sesión"; }
         loader(false);
     }
 
     function startLockdown() {
         const btn = document.getElementById('loginBtn');
         const msg = document.getElementById('loginMsg');
-        let timeLeft = LOCK_TIME;
+        let timeLeft = 30;
         btn.disabled = true;
         const timer = setInterval(() => {
-            msg.innerHTML = `<span style="color:var(--warning)">Bloqueado. Reintente en ${timeLeft}s</span>`;
+            msg.innerHTML = `<span style="color:var(--warning); margin-top:10px; display:block;">Seguridad: Reintenta en ${timeLeft}s</span>`;
             timeLeft--;
-            if (timeLeft < 0) { clearInterval(timer); loginAttempts = 0; btn.disabled = false; btn.innerText = "Ingresar"; msg.innerHTML = ""; }
+            if (timeLeft < 0) { clearInterval(timer); loginAttempts = 0; btn.disabled = false; btn.innerText = "Iniciar Sesión"; msg.innerHTML = ""; }
         }, 1000);
     }
 
@@ -268,91 +300,69 @@
     async function loadInventory() {
         loader(true);
         try {
-            const res = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
+            const res = await fetch(`${GOOGLE_SCRIPT_URL}?action=read&key=${APP_KEY}`);
             inventoryData = await res.json();
             renderInventory(inventoryData);
         } catch(e) { console.error(e); }
         loader(false);
     }
 
-    function formatChileanPhone(f) {
-        if(!f) return { link: '#', text: 'S/F' };
-        let c = String(f).replace(/\D/g,'');
-        let link = c.length === 9 ? '56' + c : c;
-        return { link: '+' + link, text: '📞 ' + f };
-    }
-
-    function copyToClipboard(text) {
-        if (!text) return;
-        navigator.clipboard.writeText(text).then(() => {
-            const toast = document.createElement('div');
-            toast.className = 'toast-msg';
-            toast.innerText = `ID ${text} copiado`;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 1500);
-        });
-    }
-
     function renderInventory(data) {
         const container = document.getElementById('inventoryCards');
         container.innerHTML = '';
-        document.getElementById('stockCounter').innerText = `Total: ${data.length} unidades`;
+        document.getElementById('stockCounter').innerText = `${data.length} UNIDADES EN STOCK`;
+        const term = document.getElementById('searchInput').value.toLowerCase();
 
         data.forEach(car => {
+            if(term && !JSON.stringify(car).toLowerCase().includes(term)) return;
             const isSold = car.estado === "Vendido";
             const isReserved = car.estado === "Reservado";
-            const phone = formatChileanPhone(car.fono);
+            
+            let rawPhone = String(car.fono || "").trim();
+            let callLink = rawPhone;
+            if (rawPhone.startsWith('9') && rawPhone.length === 9) callLink = "+56" + rawPhone;
+
             const card = document.createElement('div');
             card.className = `card-item ${isSold ? 'is-sold' : (isReserved ? 'is-reserved' : '')}`;
             card.innerHTML = `
                 <div class="card-header">
                     <div>
                         <span class="card-title">${car.marca} ${car.modelo}</span>
-                        <span class="card-subtitle">${car.anio} • ${car.color || ''} • ${car.combustible || ''}</span>
+                        <span class="card-subtitle">${car.anio} • ${car.color} • ${car.combustible}</span>
                         ${car.idExterno ? `<span class="id-badge" onclick="copyToClipboard('${car.idExterno}')">🆔 ${car.idExterno}</span>` : ''}
                     </div>
                     <span class="badge-patente">${car.patente || 'S/P'}</span>
                 </div>
                 <div class="card-body">
-                    <div class="info-row"><span class="info-label">KM</span><span class="info-val">${Number(car.km || 0).toLocaleString('de-DE')} km</span></div>
-                    <div class="info-row"><span class="info-label">Dueño</span><span class="info-val">${car.dueno}</span></div>
-                    <div class="info-row"><span class="info-label">Contacto</span><a href="tel:${phone.link}" style="color:var(--primary);text-decoration:none;">${phone.text}</a></div>
+                    <div class="info-row"><span class="info-label">Kilometraje</span><span class="info-val">${Number(car.km || 0).toLocaleString('de-DE')} KM</span></div>
+                    <div class="info-row"><span class="info-label">Dueño Original</span><span class="info-val">${car.dueno}</span></div>
+                    <div class="info-row">
+                        <span class="info-label">Teléfono</span>
+                        <span class="info-val">
+                            ${rawPhone ? `<a href="tel:${callLink}" class="call-link">📞 ${rawPhone}</a>` : 'Sin registro'}
+                        </span>
+                    </div>
                     ${car.obs ? `<div class="obs-box">${car.obs}</div>` : ''}
-                    <div style="text-align:right; margin-top:10px;">${car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">📷 Instagram</a>` : ''}</div>
+                    <div style="text-align:right; margin-top:15px;">${car.instagram ? `<a href="${car.instagram}" target="_blank" class="ig-btn">Instagram</a>` : ''}</div>
                 </div>
                 <div class="card-footer">
                     <div class="price-box">
-                        <small class="price-cost">C: $${Number(car.pDueno || 0).toLocaleString('de-DE')}</small>
+                        <span class="price-cost-label">Costo: $${Number(car.pDueno || 0).toLocaleString('de-DE')}</span>
                         <span class="price-sale">$${Number(car.pVenta || 0).toLocaleString('de-DE')}</span>
                     </div>
-                    <div style="display:flex; gap:5px;">
-                        <button class="btn-action btn-res" onclick="toggleStatus(${car.id}, '${isReserved ? 'Disponible' : 'Reservado'}')">R</button>
-                        <button class="btn-action btn-sold" onclick="toggleStatus(${car.id}, '${isSold ? 'Disponible' : 'Vendido'}')">$</button>
-                        <button class="btn-action btn-edit" onclick='editCar(${JSON.stringify(car).replace(/'/g, "&apos;")})'>✏️</button>
-                        <button class="btn-action btn-del" onclick="deleteCar(${car.id})">🗑️</button>
+                    <div class="actions-group">
+                        <button class="btn-action btn-res" onclick="toggleStatus(${car.id}, '${isReserved ? 'Disponible' : 'Reservado'}')" title="Reservar">R</button>
+                        <button class="btn-action btn-sold" onclick="toggleStatus(${car.id}, '${isSold ? 'Disponible' : 'Vendido'}')" title="Vender">$</button>
+                        <button class="btn-action btn-edit" onclick='editCar(${JSON.stringify(car).replace(/'/g, "&apos;")})' title="Editar">✏️</button>
+                        <button class="btn-action btn-del" onclick="deleteCar(${car.id})" title="Borrar">🗑️</button>
                     </div>
-                </div>
-            `;
+                </div>`;
             container.appendChild(card);
         });
     }
 
-    function filterInventory() {
-        const term = (document.getElementById('searchInput').value || "").toLowerCase();
-        const filtered = inventoryData.filter(car => {
-            return (
-                String(car.marca).toLowerCase().includes(term) ||
-                String(car.modelo).toLowerCase().includes(term) ||
-                String(car.patente).toLowerCase().includes(term) ||
-                String(car.color).toLowerCase().includes(term) ||
-                String(car.dueno).toLowerCase().includes(term) ||
-                String(car.idExterno).toLowerCase().includes(term)
-            );
-        });
-        renderInventory(filtered);
-    }
-
     async function securePost(payload) {
+        payload.key = APP_KEY;
         payload.authRut = localStorage.getItem('sessionRut');
         payload.authPass = localStorage.getItem('sessionKey');
         const res = await fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
@@ -361,63 +371,45 @@
 
     document.getElementById('carForm').onsubmit = async (e) => {
         e.preventDefault();
-        const editId = document.getElementById('editId').value;
-        const patente = document.getElementById('patente').value.trim().toUpperCase();
-        if(patente && patente !== "S/P") {
-            const dup = inventoryData.find(c => c.patente === patente && String(c.id) !== String(editId));
-            if(dup) return alert("Patente ya existe");
-        }
         const btn = document.getElementById('btnSubmit');
         btn.disabled = true; btn.innerText = "⏳ Guardando...";
         const data = {
-            action: "save", editId, patente,
-            idExterno: document.getElementById('idExterno').value,
-            instagram: document.getElementById('instagram').value,
-            marca: document.getElementById('marca').value,
-            modelo: document.getElementById('modelo').value,
-            anio: document.getElementById('anio').value,
-            color: document.getElementById('color').value,
-            combustible: document.getElementById('combustible').value,
-            km: document.getElementById('km').value.replace(/\./g,''),
-            dueno: document.getElementById('dueno').value,
-            fono: document.getElementById('fono').value,
-            pDueno: document.getElementById('pDueno').value.replace(/\./g,''),
-            pVenta: document.getElementById('pVenta').value.replace(/\./g,''),
-            obs: document.getElementById('obs').value
+            action: "save", editId: document.getElementById('editId').value,
+            patente: document.getElementById('patente').value.toUpperCase(),
+            marca: document.getElementById('marca').value, modelo: document.getElementById('modelo').value,
+            anio: document.getElementById('anio').value, color: document.getElementById('color').value,
+            combustible: document.getElementById('combustible').value, km: document.getElementById('km').value.replace(/\./g,''),
+            dueno: document.getElementById('dueno').value, fono: document.getElementById('fono').value,
+            pDueno: document.getElementById('pDueno').value.replace(/\./g,''), pVenta: document.getElementById('pVenta').value.replace(/\./g,''),
+            obs: document.getElementById('obs').value, idExterno: document.getElementById('idExterno').value, instagram: document.getElementById('instagram').value
         };
         const res = await securePost(data);
-        if(res.success) { closeModal(); loadInventory(); } else { alert(res.message); }
-        btn.disabled = false; btn.innerText = "Guardar Cambios";
+        if(res.success) { closeModal(); loadInventory(); } else alert(res.message);
+        btn.disabled = false; btn.innerText = "Guardar Información";
     };
 
     async function toggleStatus(id, s) { loader(true); await securePost({action:"toggle_status", id, newStatus:s}); loadInventory(); }
-    async function deleteCar(id) { if(confirm("¿Borrar?")) { loader(true); await securePost({action:"delete", id}); loadInventory(); } }
+    async function deleteCar(id) { if(confirm("¿Borrar definitivamente este vehículo del sistema?")) { loader(true); await securePost({action:"delete", id}); loadInventory(); } }
+    
     function loader(s) { document.getElementById('loadingBar').style.width = s ? "70%" : "0%"; }
     function formatInput(i) { let v = i.value.replace(/\D/g, ""); i.value = v ? Number(v).toLocaleString("de-DE") : ""; }
     function openModal() { document.getElementById('modalOverlay').style.display='flex'; document.getElementById('carForm').reset(); document.getElementById('editId').value=""; }
     function closeModal() { document.getElementById('modalOverlay').style.display='none'; }
-    function editCar(c) {
-        openModal();
-        document.getElementById('editId').value = c.id;
-        document.getElementById('idExterno').value = c.idExterno || "";
-        document.getElementById('instagram').value = c.instagram || "";
-        document.getElementById('patente').value = c.patente || "";
-        document.getElementById('marca').value = c.marca;
-        document.getElementById('modelo').value = c.modelo;
-        document.getElementById('color').value = c.color;
-        document.getElementById('anio').value = c.anio;
-        document.getElementById('combustible').value = c.combustible;
-        document.getElementById('dueno').value = c.dueno;
-        document.getElementById('fono').value = c.fono;
-        document.getElementById('obs').value = c.obs || "";
-        document.getElementById('km').value = Number(c.km || 0).toLocaleString('de-DE');
-        document.getElementById('pVenta').value = Number(c.pVenta || 0).toLocaleString('de-DE');
-        document.getElementById('pDueno').value = Number(c.pDueno || 0).toLocaleString('de-DE');
+    function filterInventory() { renderInventory(inventoryData); }
+    function copyToClipboard(t) { 
+        navigator.clipboard.writeText(t).then(() => {
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg';
+            toast.innerText = `ID ${t} copiado`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        });
     }
     function exportData() {
         const blob = new Blob([JSON.stringify(inventoryData, null, 2)], { type: 'application/json' });
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup.json`; a.click();
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_admin.json`; a.click();
     }
+
     if(localStorage.getItem('sessionRut') && localStorage.getItem('sessionKey')) enterAdmin();
 </script>
 </body>
