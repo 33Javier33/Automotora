@@ -6,65 +6,136 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://script.google.com https://script.googleusercontent.com; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;">
     <title>Catálogo Online | Mi Automotora</title>
     <style>
-        :root { --primary: #4f46e5; --success: #10b981; --warning: #f59e0b; --dark: #1e293b; --light: #f1f5f9; --border: #e2e8f0; --whatsapp: #25d366; --instagram: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-        body { font-family: 'Inter', system-ui, sans-serif; background-color: var(--light); margin: 0; padding-bottom: 40px; }
+        :root { 
+            --primary: #4f46e5; 
+            --success: #10b981; 
+            --warning: #f59e0b; 
+            --dark: #0f172a; 
+            --light: #f8fafc; 
+            --border: #e2e8f0; 
+            --secondary: #64748b;
+            --whatsapp: #25d366;
+            --instagram: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        
+        body { font-family: 'Inter', system-ui, sans-serif; background-color: var(--light); margin: 0; padding-bottom: 110px; color: var(--dark); scroll-behavior: smooth; }
 
-        header { background: white; padding: 1.2rem 1rem; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
-        .logo-client { font-size: 1.4rem; font-weight: 900; color: var(--primary); letter-spacing: -1px; }
-        .live-dot { height: 8px; width: 8px; background: var(--success); border-radius: 50%; display: inline-block; animation: blink 1.5s infinite; margin-right: 5px; }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        header { background: white; padding: 1.5rem 1rem; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
+        .logo-client { font-size: 1.6rem; font-weight: 900; color: var(--primary); letter-spacing: -1.5px; text-transform: uppercase; }
+        .live-dot { height: 10px; width: 10px; background: var(--success); border-radius: 50%; display: inline-block; animation: blink 1.5s infinite; margin-right: 6px; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* BUSCADOR FLOTANTE CLIENTE */
+        #floatingSearchContainer { position: fixed; top: -100px; left: 0; width: 100%; background: white; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1500; transition: 0.4s; display: flex; gap: 10px; box-sizing: border-box; }
+        #floatingSearchContainer.active { top: 0; }
+        #floatingSearchInput { flex: 1; padding: 12px; border-radius: 12px; border: 2px solid var(--primary); outline: none; font-size: 1rem; }
 
         .main-content { max-width: 1100px; margin: 1.5rem auto; padding: 0 1rem; }
-        #searchInput { width: 100%; padding: 16px; border-radius: 15px; border: 2px solid white; font-size: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.05); outline: none; margin-bottom: 2rem; box-sizing: border-box; }
+        .search-container { margin-bottom: 2rem; }
+        #searchInput { width: 100%; padding: 18px; border-radius: 20px; border: 2px solid white; font-size: 1rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); outline: none; box-sizing: border-box; }
 
-        .catalog-grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
-        .car-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); display: flex; flex-direction: column; border: 1px solid var(--border); position: relative; }
+        /* TARJETAS DE CATÁLOGO */
+        .catalog-grid { display: grid; gap: 2rem; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); }
         
-        .status-overlay { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); padding: 10px 20px; font-size: 1.8rem; font-weight: 900; z-index: 20; border: 6px double; text-transform: uppercase; background: rgba(255, 255, 255, 0.9); pointer-events: none; color: var(--warning); border-color: var(--warning); }
+        .car-card { background: white; border-radius: 24px; overflow: hidden; box-shadow: var(--card-shadow); display: flex; flex-direction: column; border: 1px solid var(--border); position: relative; transition: transform 0.3s; }
+        .car-card:hover { transform: translateY(-5px); }
+        
+        .status-overlay { position: absolute; top: 35%; left: 50%; transform: translate(-50%, -50%) rotate(-15deg); padding: 12px 24px; font-size: 2rem; font-weight: 900; z-index: 20; border: 6px double var(--warning); text-transform: uppercase; background: rgba(255, 255, 255, 0.95); color: var(--warning); border-radius: 4px; pointer-events: none; }
 
-        .card-img-placeholder { width: 100%; height: 160px; background: #e2e8f0; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #94a3b8; }
-        .card-info { padding: 1.2rem; flex-grow: 1; }
-        .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-        .spec-item { background: #f8fafc; padding: 6px; border-radius: 10px; border: 1px solid #f1f5f9; }
-        .spec-label { display: block; color: #94a3b8; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; }
-        .spec-value { font-weight: 700; color: var(--dark); font-size: 0.8rem; }
+        .card-img-header { width: 100%; height: 180px; background: #eef2ff; display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #c7d2fe; }
+        .card-info { padding: 1.5rem; flex-grow: 1; }
+        .car-title { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--dark); letter-spacing: -0.5px; }
+        
+        .spec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+        .spec-item { background: #f8fafc; padding: 10px; border-radius: 12px; border: 1px solid #f1f5f9; }
+        .spec-label { display: block; color: #94a3b8; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; margin-bottom: 2px; }
+        .spec-value { font-weight: 700; color: var(--dark); font-size: 0.9rem; }
 
-        .price-tag { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f1f5f9; }
-        .price-amount { font-size: 1.5rem; font-weight: 900; color: var(--primary); display: block; margin-bottom: 12px; }
+        .price-container { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #f1f5f9; text-align: center; }
+        .price-label { font-size: 0.75rem; color: var(--secondary); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; display: block; }
+        .price-amount { font-size: 1.8rem; font-weight: 900; color: var(--primary); display: block; margin-bottom: 15px; letter-spacing: -1px; }
 
-        .actions-container { display: flex; flex-direction: column; gap: 8px; }
-        .main-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .btn-client { text-decoration: none; padding: 12px; border-radius: 12px; font-weight: 700; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 5px; color: white; }
-        .btn-wa { background: var(--whatsapp); }
-        .btn-call { background: var(--dark); }
-        .btn-ig { background: var(--instagram); }
+        /* ACCIONES CLIENTE */
+        .actions-container { display: flex; flex-direction: column; gap: 10px; }
+        .main-contact { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn-client { text-decoration: none; padding: 14px; border-radius: 14px; font-weight: 800; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px; color: white; transition: 0.2s; }
+        .btn-wa { background: var(--whatsapp); box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3); }
+        .btn-call { background: var(--dark); box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3); }
+        .btn-ig { background: var(--instagram); box-shadow: 0 4px 12px rgba(220, 39, 67, 0.3); }
+
+        /* CONTROLES FLOTANTES */
+        .floating-controls { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 1000; align-items: center; }
+        .btn-search-float { width: 60px; height: 60px; border-radius: 50%; background: var(--primary); color: white; border: none; box-shadow: 0 8px 15px rgba(79, 70, 229, 0.4); font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .btn-go-up { width: 45px; height: 45px; border-radius: 50%; background: var(--dark); color: white; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.2); font-size: 20px; cursor: pointer; display: none; align-items: center; justify-content: center; opacity: 0.8; }
+
+        .footer-watermark { text-align: center; padding: 30px 0; color: #94a3b8; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
+<div id="floatingSearchContainer">
+    <input type="text" id="floatingSearchInput" placeholder="Marca, modelo o año..." onkeyup="syncSearch(this.value)">
+    <button onclick="toggleFloatingSearch()" style="background:var(--danger); color:white; border:none; padding:10px 15px; border-radius:12px; font-weight:bold;">X</button>
+</div>
+
 <header>
     <div class="logo-client">🚗 MI AUTOMOTORA</div>
-    <div style="font-size: 0.7rem; font-weight: bold; color: var(--success);"><span class="live-dot"></span> STOCK EN TIEMPO REAL</div>
+    <div style="font-size: 0.75rem; font-weight: 800; color: var(--success); margin-top: 5px;">
+        <span class="live-dot"></span> STOCK EN TIEMPO REAL
+    </div>
 </header>
 
 <div class="main-content">
-    <input type="text" id="searchInput" placeholder="Buscar por marca, modelo o año..." onkeyup="filterLocal()">
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar el auto de tus sueños..." onkeyup="filterLocal()">
+    </div>
     <div id="catalogGrid" class="catalog-grid"></div>
+    <div class="footer-watermark">CarlosPN Interactive®</div>
+</div>
+
+<div class="floating-controls">
+    <button id="btnGoUp" class="btn-go-up" onclick="scrollToTop()">↑</button>
+    <button class="btn-search-float" onclick="toggleFloatingSearch()">🔍</button>
 </div>
 
 <script>
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyBurGXfk92kPtrTVFDI7Ukec03FYhVOHcfdl7FN95C5uLT_BnU8ltzh_nPy9gUkDDbZg/exec";
-    const BUSINESS_PHONE = "56949657510"; 
+    const APP_KEY = "CPN_INTERACTIVE_2026_SECURE"; 
+    const BUSINESS_PHONE = "56949657510"; // Teléfono de ventas de la automotora
 
     let inventoryData = [];
 
+    // --- NAVEGACIÓN ---
+    function toggleFloatingSearch() {
+        const container = document.getElementById('floatingSearchContainer');
+        const input = document.getElementById('floatingSearchInput');
+        container.classList.toggle('active');
+        if (container.classList.contains('active')) input.focus();
+    }
+
+    function syncSearch(val) {
+        document.getElementById('searchInput').value = val;
+        document.getElementById('floatingSearchInput').value = val;
+        renderCatalog(inventoryData);
+    }
+
+    window.onscroll = function() {
+        const btn = document.getElementById("btnGoUp");
+        btn.style.display = (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) ? "flex" : "none";
+    };
+
+    function scrollToTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    // --- CARGA DE DATOS ---
     async function loadCatalog() {
         try {
-            const response = await fetch(GOOGLE_SCRIPT_URL + "?action=read");
+            const response = await fetch(`${GOOGLE_SCRIPT_URL}?action=read&key=${APP_KEY}`);
             const data = await response.json();
+            // El cliente no debe ver los vendidos
             inventoryData = data.filter(car => car.estado !== "Vendido" && car.id);
             renderCatalog(inventoryData);
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error:", e); }
     }
 
     function renderCatalog(data) {
@@ -73,34 +144,37 @@
         grid.innerHTML = '';
 
         data.forEach(car => {
-            if (search && !String(car.marca + car.modelo + car.anio).toLowerCase().includes(search)) return;
+            const match = `${car.marca} ${car.modelo} ${car.anio} ${car.combustible} ${car.color}`.toLowerCase();
+            if (search && !match.includes(search)) return;
 
             const isReserved = car.estado === "Reservado";
-            const waLink = `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent('Hola, me interesa el ' + car.marca + ' ' + car.modelo + ' año ' + car.anio)}`;
+            const waLink = `https://wa.me/${BUSINESS_PHONE}?text=${encodeURIComponent('Hola, me interesa el ' + car.marca + ' ' + car.modelo + ' año ' + car.anio + '. ¿Sigue disponible?')}`;
 
             const card = document.createElement('div');
-            card.className = `car-card ${isReserved ? 'is-dimmed' : ''}`;
+            card.className = `car-card`;
             card.innerHTML = `
                 ${isReserved ? '<div class="status-overlay">RESERVADO</div>' : ''}
-                <div class="card-img-placeholder">🚗</div>
+                <div class="card-img-header">🚗</div>
                 <div class="card-info">
-                    <h3 style="margin:0; font-size:1.2rem;">${car.marca} ${car.modelo}</h3>
+                    <h3 class="car-title">${car.marca} ${car.modelo}</h3>
                     <div class="spec-grid">
                         <div class="spec-item"><span class="spec-label">AÑO</span><span class="spec-value">${car.anio}</span></div>
                         <div class="spec-item"><span class="spec-label">KM</span><span class="spec-value">${Number(car.km).toLocaleString('de-DE')}</span></div>
                         <div class="spec-item"><span class="spec-label">MOTOR</span><span class="spec-value">${car.combustible}</span></div>
                         <div class="spec-item"><span class="spec-label">COLOR</span><span class="spec-value">${car.color || 'N/A'}</span></div>
                     </div>
-                    <div class="price-tag">
+                    <div class="price-container">
+                        <span class="price-label">PRECIO AL CONTADO</span>
                         <span class="price-amount">$${Number(car.pVenta).toLocaleString('de-DE')}</span>
+                        
                         <div class="actions-container">
                             ${!isReserved ? `
-                                <div class="main-actions">
+                                <div class="main-contact">
                                     <a href="${waLink}" target="_blank" class="btn-client btn-wa">WhatsApp</a>
                                     <a href="tel:+${BUSINESS_PHONE}" class="btn-client btn-call">Llamar</a>
                                 </div>
                                 ${car.instagram ? `<a href="${car.instagram}" target="_blank" class="btn-client btn-ig">Ver en Instagram</a>` : ''}
-                            ` : '<div style="text-align:center; color:var(--warning); font-weight:bold; padding:10px; border:1px solid var(--warning); border-radius:10px;">NO DISPONIBLE</div>'}
+                            ` : '<div style="background:#fff7ed; color:#c2410c; padding:15px; border-radius:15px; font-weight:800; font-size:0.8rem; border:1px solid #ffedd5;">VEHÍCULO RESERVADO</div>'}
                         </div>
                     </div>
                 </div>
@@ -110,7 +184,8 @@
     }
 
     function filterLocal() { renderCatalog(inventoryData); }
-    setInterval(loadCatalog, 5000); // ACTUALIZA CADA 5 SEGUNDOS
+    
+    setInterval(loadCatalog, 5000);
     document.addEventListener('DOMContentLoaded', loadCatalog);
 </script>
 </body>
